@@ -550,9 +550,6 @@ class ImageOverview(QWidget):
 		self.AddSkeletonUI()
 
 	def CreateInitializationSettings(self) -> None:
-		self.defaultInputDirectory = self.defaultInputDirectory.replace("/", "\\")
-		self.defaultOutputDirectory = self.defaultOutputDirectory.replace("/", "\\")
-		
 		initializationSettings = {
 			"defaultInputDirectory": self.defaultInputDirectory,
 			"defaultOutputDirectory": self.defaultOutputDirectory
