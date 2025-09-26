@@ -20,7 +20,7 @@
         "function": "adjustContrast"
     },
     "Edge Detection": {
-        "relatedParameters": ["gaussianBlurSigma", "maxThreshold", "minThreshold", "edgeNeighborRatio"],
+        "relatedParameters": ["gaussianBlurSigma", "maxThreshold", "minThreshold", "edgeNeighborRatio", "searchDistance"],
         "function": "edgeDetection"
     }
 }

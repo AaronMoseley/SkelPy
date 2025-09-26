@@ -138,6 +138,9 @@ class StepWithParameters(QHBoxLayout):
         self.currentlyUpdatingValues = True
 
         for parameterName in self.sliders:
+            if parameterName not in self.sliders:
+                continue
+            
             self.sliders[parameterName].UpdateValue(values[parameterName])
 
         self.currentlyUpdatingValues = False

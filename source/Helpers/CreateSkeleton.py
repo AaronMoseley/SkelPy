@@ -257,7 +257,7 @@ def CallAdjustContrast(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
 def CallEdgeDetection(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     edges = feature.canny(imgArray, sigma=parameters["gaussianBlurSigma"])
     
-    imgArray = threshold_and_proximity(imgArray, edges, parameters["maxThreshold"], parameters["minThreshold"], 5, parameters["edgeNeighborRatio"])
+    imgArray = threshold_and_proximity(imgArray, edges, parameters["maxThreshold"], parameters["minThreshold"], parameters["searchDistance"], parameters["edgeNeighborRatio"])
     return imgArray
 
 stepFunctionMap = {
