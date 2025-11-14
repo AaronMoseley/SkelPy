@@ -23,7 +23,7 @@ The project was created with Python and PyQt.
 This was created for Dr. Jordan Dowell's biology lab at LSU.
 ## Getting Started
 
-If you are using Windows, or have [Wine](https://www.winehq.org/) installed, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run HyPhy as it doesn't require you to download the code or manually install any packages.
+If you are using Windows, or have [Wine](https://www.winehq.org/) installed, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run HyPhy as it doesn't require you to download the code or manually install any packages. If you would still like to download the code, or run HyPhy more manually, continue with the instructions below. Otherwise, you can skip them.
  
 ### Prerequisites
 
