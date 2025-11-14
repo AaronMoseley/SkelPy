@@ -27,7 +27,7 @@ If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a
  
 ### Prerequisites
 
-You must already have an environment set up to use this project. This is a requirement to install packages using pip. An easy way to set this up is through Anaconda Navigator.
+You must already have an environment set up to use this project. This is a requirement to install packages using pip. An easy way to set this up is through [Anaconda Navigator](https://www.anaconda.com/products/navigator).
 ### Installation
 
 1. Clone the repo
