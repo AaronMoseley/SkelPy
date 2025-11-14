@@ -35,7 +35,7 @@ You must already have an environment set up to use this project. This is a requi
    ```
 3. Install pip Packages (execute command inside Github repo directory)
    ```sh
-   pip install requirements.txt
+   pip install -r requirements.txt
    ```
 
 ### Running the Program
