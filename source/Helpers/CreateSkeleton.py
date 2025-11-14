@@ -9,9 +9,8 @@ from skimage.filters import threshold_otsu
 from skimage import morphology
 from skimage import feature
 
-from source.Helpers.VectorizeSkeleton import VectorizeSkeleton
-
-from source.Helpers.HelperFunctions import skeletonKey, statFunctionMap, vectorKey, pointsKey, linesKey, clusterKey, functionKey
+from .VectorizeSkeleton import VectorizeSkeleton
+from .HelperFunctions import skeletonKey, statFunctionMap, vectorKey, pointsKey, linesKey, clusterKey, functionKey
 
 def count_black_neighbors(binary_array, x, y):
     neighbors = binary_array[x-1:x+2, y-1:y+2]

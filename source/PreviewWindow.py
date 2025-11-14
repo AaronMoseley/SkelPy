@@ -11,11 +11,9 @@ import json
 
 from PIL import Image
 
-from source.Helpers.HelperFunctions import ArrayToPixmap, NormalizeImageArray
-
-from source.UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
-
-from source.Helpers.CreateSkeleton import stepFunctionMap
+from .Helpers.HelperFunctions import ArrayToPixmap, NormalizeImageArray
+from .UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
+from .Helpers.CreateSkeleton import stepFunctionMap
 
 class PreviewWindow(QWidget):
 	BackToOverview = Signal()

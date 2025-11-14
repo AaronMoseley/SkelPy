@@ -12,19 +12,19 @@ import json
 
 from PIL import Image
 
-from source.Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
-from source.UIElements.ClickableLabel import ClickableLabel
-from source.UIElements.SliderLineEditCombo import SliderLineEditCombo
-from source.UIElements.ProgressBar import ProgressBarPopup
-from source.Helpers.CreateSkeleton import GenerateSkeleton
-from source.Helpers.CSVCreator import GenerateCSVs
+from .Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
+from .UIElements.ClickableLabel import ClickableLabel
+from .UIElements.SliderLineEditCombo import SliderLineEditCombo
+from .UIElements.ProgressBar import ProgressBarPopup
+from .Helpers.CreateSkeleton import GenerateSkeleton
+from .Helpers.CSVCreator import GenerateCSVs
 import copy
 
 import time
 
-from source.UIElements.SkeletonPipelineDisplay import SkeletonPipelineDisplay
-from source.UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
-from source.UIElements.SkeletonPipelineDisplayRegion import SkeletonPipelineDisplayRegion
+from .UIElements.SkeletonPipelineDisplay import SkeletonPipelineDisplay
+from .UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
+from .UIElements.SkeletonPipelineDisplayRegion import SkeletonPipelineDisplayRegion
 
 class ImageOverview(QWidget):
 	ClickedOnSkeleton = Signal(str, str)

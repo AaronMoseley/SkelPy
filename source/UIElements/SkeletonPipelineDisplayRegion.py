@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QLineEdit, QLab
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDoubleValidator, QFont, QPixmap
 
-from source.Helpers.HelperFunctions import to_camel_case
+from ..Helpers.HelperFunctions import to_camel_case
 
-from source.UIElements.SkeletonPipelineDisplay import SkeletonPipelineDisplay
-from source.UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
+from .SkeletonPipelineDisplay import SkeletonPipelineDisplay
+from .SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
 
 from functools import partial
 

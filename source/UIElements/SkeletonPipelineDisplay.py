@@ -1,13 +1,8 @@
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QLineEdit, QLabel, QPushButton
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QDoubleValidator, QFont, QPixmap, QColor
+from PySide6.QtGui import  QPixmap, QColor
 
-from source.UIElements.ClickableLabel import ClickableLabel
-from source.UIElements.SliderLineEditCombo import SliderLineEditCombo
-from source.UIElements.StepWithParameters import StepWithParameters
-from source.Helpers.HelperFunctions import to_camel_case
-
-from functools import partial
+from .ClickableLabel import ClickableLabel
 
 class SkeletonPipelineDisplay(QVBoxLayout):
     GoIntoSkeletonView = Signal(str)

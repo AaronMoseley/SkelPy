@@ -8,9 +8,9 @@ import os
 
 from PIL import Image
 
-from source.Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, comparisonFunctionMap, camel_case_to_capitalized
+from .Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, comparisonFunctionMap, camel_case_to_capitalized
 
-from source.Helpers.CreateSkeleton import CallSkeletonize, VectorizeSkeleton
+from .Helpers.CreateSkeleton import CallSkeletonize, VectorizeSkeleton
 
 class ComparisonWindow(QWidget):
 	BackToOverview = Signal()

@@ -9,3 +9,7 @@ initializationSettings.json
 *.pyc
 __pycache__/*
 ParameterValues.json
+dist*
+build*
+*.tif
+*.spec
