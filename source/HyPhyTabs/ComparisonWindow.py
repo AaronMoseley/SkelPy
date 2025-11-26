@@ -20,6 +20,8 @@ class ComparisonWindow(QWidget):
 		super().__init__()
 
 		self.imageResolution = 512
+		self.scaledWidth = self.imageResolution
+		self.scaledHeight = self.imageResolution
 
 		self.comparisonStatsLabels:dict[str, QLabel] = {}
 
@@ -112,6 +114,17 @@ class ComparisonWindow(QWidget):
 		#upload input image
 		inputImagePath = currentResults["originalImage"]
 		inputImageArray = np.asarray(Image.open(inputImagePath), dtype=np.float64)
+
+		self.scaledHeight = self.imageResolution
+		self.scaledWidth = self.imageResolution
+
+		if inputImageArray.shape[0] > inputImageArray.shape[1]:
+			#scale down width
+			self.scaledWidth = int(self.imageResolution * (inputImageArray.shape[1] / inputImageArray.shape[0]))
+		elif inputImageArray.shape[1] > inputImageArray.shape[0]:
+			#scale down height
+			self.scaledHeight = int(self.imageResolution * (inputImageArray.shape[0] / inputImageArray.shape[1]))
+
 		inputImageArray = NormalizeImageArray(inputImageArray)
 		inputImagePixmap = ArrayToPixmap(inputImageArray, dimension=self.imageResolution)
 		self.inputImageLabel.setPixmap(inputImagePixmap)
@@ -119,8 +132,13 @@ class ComparisonWindow(QWidget):
 		#upload generated skeleton, draw vectorized version
 		generatedSkeletonPixmap = draw_lines_on_pixmap(currentResults[currSkeletonKey][vectorKey][pointsKey], 
 													   currentResults[currSkeletonKey][vectorKey][linesKey],
-													   dimension=self.imageResolution)
+													   self.scaledWidth, self.scaledHeight)
 		self.generatedImageLabel.setPixmap(generatedSkeletonPixmap)
+
+		blackPixmap = QPixmap(self.scaledWidth, self.scaledHeight)
+		blackPixmap.fill("black")
+
+		self.uploadedImageLabel.setPixmap(blackPixmap)
 
 		originalImageBaseName = os.path.basename(currentResults[originalImageKey])
 		self.originalImageTextLabel.setText(f"Original Image: {originalImageBaseName}")
@@ -146,7 +164,7 @@ class ComparisonWindow(QWidget):
 		uploadedSkeleton = CallSkeletonize(uploadedImageArray, {})
 		self.uploadedLines, self.uploadedPoints, _ = VectorizeSkeleton(uploadedSkeleton)
 
-		uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, dimension=self.imageResolution)
+		uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
 		self.uploadedImageLabel.setPixmap(uploadedPixmap)
 
 		#perform calculations
@@ -167,13 +185,13 @@ class ComparisonWindow(QWidget):
 		self.currentlyOverlaying = not self.currentlyOverlaying
 
 		if not self.currentlyOverlaying:
-			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, dimension=self.imageResolution)
+			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
 			self.uploadedImageLabel.setPixmap(uploadedPixmap)
 		else:
-			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, dimension=self.imageResolution, line_color=QColor("green"))
+			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight, line_color=QColor("green"))
 			uploadedPixmap = draw_lines_on_pixmap(self.currentResults[self.skeletonType][vectorKey][pointsKey], 
 												self.currentResults[self.skeletonType][vectorKey][linesKey],
-												dimension=self.imageResolution, line_color=QColor("blue"), pixmap=uploadedPixmap)
+												self.scaledWidth, self.scaledHeight, line_color=QColor("blue"), pixmap=uploadedPixmap)
 			
 			self.uploadedImageLabel.setPixmap(uploadedPixmap)
 

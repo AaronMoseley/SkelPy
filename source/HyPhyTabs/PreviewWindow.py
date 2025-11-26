@@ -25,7 +25,7 @@ class PreviewWindow(QWidget):
 		self.pipelineSteps = pipelineSteps
 		self.stepParameters = stepParameters
 
-		self.imageResolution = 512
+		self.imageResolution = 384
 
 		self.currentStepIndex:int = 0
 		self.currentSkeletonKey:str = ""

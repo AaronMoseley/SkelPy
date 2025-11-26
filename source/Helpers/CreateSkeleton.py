@@ -7,15 +7,18 @@ from .HelperFunctions import skeletonKey, vectorKey, pointsKey, linesKey, cluste
 from ..UserContent.FunctionMaps import PIPELINE_STEP_FUNCTION_MAP, METRIC_FUNCTION_MAP
 
 def GenerateSkeleton(directory:str, fileName:str, parameters:list[dict], steps:list, pipelineSteps:dict) -> dict:
-    if not fileName.endswith(".tif") and not fileName.endswith(".png"):
-        return None
-    
     filePath = os.path.join(directory, fileName)
     img = Image.open(filePath)
 
     originalImageArray = np.asarray(img, dtype=np.float64)
 
-    imgArray = np.asarray(img, dtype=np.float64)
+    if originalImageArray.ndim > 2:
+        if originalImageArray.shape[-1] == 4:
+            originalImageArray = originalImageArray[:, :, :3]
+
+        originalImageArray = np.mean(originalImageArray, axis=-1)
+
+    imgArray = np.copy(originalImageArray)
 
     maxValue = np.max(imgArray)
     minValue = np.min(imgArray)

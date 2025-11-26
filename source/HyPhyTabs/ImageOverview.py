@@ -42,6 +42,8 @@ class ImageOverview(QWidget):
 		self.stepParameters = stepParameters
 
 		self.imageSize = 256
+		self.scaledWidth = self.imageSize
+		self.scaledHeight = self.imageSize
 
 		self.currentIndex = 0
 
@@ -461,15 +463,15 @@ class ImageOverview(QWidget):
 
 			originalImagePixmap = ArrayToPixmap(originalImageArray, self.imageSize, False)
 
-			overlayedPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize,
+			overlayedPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], 
+										  		   self.scaledWidth, self.scaledHeight,
 												   line_width=1, line_color=QColor("red"), pixmap=originalImagePixmap)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, overlayedPixmap)
-
 		else:
 			self.currentSkeletonsOverlayed.remove(currSkeletonKey)
 
-			skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize)
+			skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
@@ -506,6 +508,16 @@ class ImageOverview(QWidget):
 		originalImage = Image.open(os.path.join(self.defaultInputDirectory, imageFileName))
 		originalImageArray = np.asarray(originalImage, dtype=np.float64).copy()
 
+		self.scaledHeight = self.imageSize
+		self.scaledWidth = self.imageSize
+
+		if originalImageArray.shape[0] > originalImageArray.shape[1]:
+			#scale down width
+			self.scaledWidth = int(self.imageSize * (originalImageArray.shape[1] / originalImageArray.shape[0]))
+		elif originalImageArray.shape[1] > originalImageArray.shape[0]:
+			#scale down height
+			self.scaledHeight = int(self.imageSize * (originalImageArray.shape[0] / originalImageArray.shape[1]))
+
 		maxValue = np.max(originalImageArray)
 		minValue = np.min(originalImageArray)
 		originalImageArray -= minValue
@@ -525,7 +537,7 @@ class ImageOverview(QWidget):
 			else:
 				self.timestampLabel.setText(f"Timestamp: 0")
 
-			skeletonPixmap = QPixmap(self.imageSize, self.imageSize)
+			skeletonPixmap = QPixmap(self.scaledWidth, self.scaledHeight)
 			skeletonPixmap.fill(QColor("black"))
 
 			for currSkeletonKey in self.skeletonPipelines:
@@ -541,14 +553,14 @@ class ImageOverview(QWidget):
 
 		for currSkeletonKey in self.skeletonPipelines:
 			if currSkeletonKey not in calculations:
-				skeletonPixmap = QPixmap(self.imageSize, self.imageSize)
+				skeletonPixmap = QPixmap(self.scaledWidth, self.scaledHeight)
 				skeletonPixmap.fill(QColor("black"))
 				self.currentImageHasData = False
 				missingSkeleton = True
 
 				ShowNotification(f"Missing generated skeleton: {camel_case_to_capitalized(currSkeletonKey)}.\nPlease regenerate skeletons for this image.")
 			else:
-				skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize)
+				skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 

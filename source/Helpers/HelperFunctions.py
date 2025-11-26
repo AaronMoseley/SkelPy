@@ -46,9 +46,9 @@ def IsPositiveNumeric(inputStr:str) -> bool:
     return True
 
 def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]], 
-                         dimension:int=249, colorMap:dict={}, line_color=QColor("white"), line_width=2, pixmap:QPixmap=None):
+                         width:int=249, height:int=249, colorMap:dict={}, line_color=QColor("white"), line_width=2, pixmap:QPixmap=None):
     if pixmap is None:
-        pixmap = QPixmap(dimension, dimension)
+        pixmap = QPixmap(width, height)
         pixmap.fill(QColor("black"))
 
     painter = QPainter(pixmap)
@@ -58,8 +58,8 @@ def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]]
 
     # Helper to scale normalized points to pixel coordinates
     def scale_point(p):
-        x = int(p[0] * dimension)
-        y = int((1 - p[1]) * dimension)
+        x = int(p[0] * width)
+        y = int((1 - p[1]) * height)
         return QPoint(x, y)
 
     for lineIndex, line in enumerate(lines):
@@ -82,17 +82,33 @@ def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]]
 
 def ArrayToPixmap(array:np.ndarray, dimension:int=249, correctRange:bool=False, maxPoolDownSample:bool=False) -> QPixmap:
     arrayCopy = np.copy(array)
-    
+
+    if arrayCopy.ndim > 2:
+        if arrayCopy.shape[-1] == 4:
+            arrayCopy = arrayCopy[:, :, :3]
+
+        arrayCopy = np.mean(arrayCopy, axis=-1)
+
     if not correctRange:
         arrayCopy *= 255.0
 
     arrayCopy = np.asarray(arrayCopy, dtype=np.uint8)
 
+    scaledHeight = dimension
+    scaledWidth = dimension
+
+    if arrayCopy.shape[0] > arrayCopy.shape[1]:
+        #scale down height
+        scaledWidth = int(dimension * (arrayCopy.shape[1] / arrayCopy.shape[0]))
+    elif arrayCopy.shape[1] > arrayCopy.shape[0]:
+        #scale down width
+        scaledHeight = int(dimension * (arrayCopy.shape[0] / arrayCopy.shape[1]))
+
     # Resize using OpenCV
     if not maxPoolDownSample:
-        resized_gray = cv2.resize(arrayCopy, (dimension, dimension), interpolation=cv2.INTER_CUBIC)
+        resized_gray = cv2.resize(arrayCopy, (scaledWidth, scaledHeight), interpolation=cv2.INTER_CUBIC)
     else:
-        resized_gray = max_pooling_downsample(arrayCopy, (dimension, dimension))
+        resized_gray = max_pooling_downsample(arrayCopy, (scaledHeight, scaledWidth))
 
     # Convert to RGB by stacking channels
     rgb_array = cv2.cvtColor(resized_gray, cv2.COLOR_GRAY2RGB)

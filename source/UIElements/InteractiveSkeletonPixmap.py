@@ -21,6 +21,8 @@ class InteractiveSkeletonPixmap(QLabel):
         self.setMouseTracking(True)
 
         self.dimension = dimension
+        self.scaledWidth = dimension
+        self.scaledHeight = dimension
 
         self.points = None
         self.lines = None
@@ -39,10 +41,13 @@ class InteractiveSkeletonPixmap(QLabel):
 
         self.hoveredLineColor = QColor("yellow")
 
-    def SetLines(self, points:list[tuple[float, float]], lines:list[list[int]], clusters:list[list[int]]) -> None:
+    def SetLines(self, points:list[tuple[float, float]], lines:list[list[int]], clusters:list[list[int]], width:int, height:int) -> None:
         self.points = points
         self.lines = lines
         self.clusters = clusters
+
+        self.scaledWidth = width
+        self.scaledHeight = height
 
         self.UpdateLines()
 
@@ -191,5 +196,5 @@ class InteractiveSkeletonPixmap(QLabel):
 
     def UpdateLines(self) -> None:
         colorMap = self.GetColorMap()
-        pixmap = draw_lines_on_pixmap(self.points, self.lines, self.dimension, colorMap)
+        pixmap = draw_lines_on_pixmap(self.points, self.lines, self.scaledWidth, self.scaledHeight, colorMap)
         self.setPixmap(pixmap)

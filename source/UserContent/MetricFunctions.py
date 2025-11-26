@@ -159,7 +159,7 @@ def CountConnectedPixels(grid: np.ndarray, start_row: int, start_col: int) -> in
 def DrawLine(startPosition:tuple[float, float], direction:tuple[float, float], dimension:tuple[int, int]) -> np.ndarray:
     result = np.zeros(dimension)
 
-    cols, rows = dimension
+    rows, cols = dimension
     x0 = int(cols * startPosition[0])
     y0 = int(rows * startPosition[1])
     dx, dy = direction
@@ -190,7 +190,7 @@ def CalculateLineWidth(thresholdedImage:np.ndarray, direction:tuple[float, float
     andImage = np.logical_and(thresholdedImage > 0.5, lineDrawn > 0.5).astype(np.float64)
 
     #BFS to get the number of white pixels connected to starting point
-    width = CountConnectedPixels(andImage, int(startingPoint[1] * thresholdedImage.shape[1]), int(startingPoint[0] * thresholdedImage.shape[0]))
+    width = CountConnectedPixels(andImage, int(startingPoint[1] * thresholdedImage.shape[0]), int(startingPoint[0] * thresholdedImage.shape[1]))
     
     width /= thresholdedImage.shape[0]
 
