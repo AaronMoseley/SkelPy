@@ -63,8 +63,8 @@ METRIC_FUNCTION_MAP = {
         functionTypeKey: clusterTypeKey,
         "inImageSpace": True
     },
-    "isLineStraight": {
-        functionKey: IsLineStraight,
+    "sinuosity": {
+        functionKey: Sinuosity,
         functionTypeKey: lineTypeKey,
         "inImageSpace": False
     },

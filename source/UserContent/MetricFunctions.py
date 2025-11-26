@@ -4,6 +4,8 @@ from scipy.stats import linregress
 import math
 from collections import deque
 
+from ..Helpers.HelperFunctions import TupleDistance
+
 """
 The following three functions are generic examples of what you can do to calculate metrics for skeletonized images
 Each generates a random number for different features in the image: the whole image, each cluster of connected polylines in an image, and each lines
@@ -38,6 +40,20 @@ def RandomNumberPerLine(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines
     
     for _ in range(len(lines)):
         result.append(random.uniform(0, 1))
+
+    return result
+
+def Sinuosity(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> float:
+    result = []
+
+    for line in lines:
+        straightLineDistance = TupleDistance(points[line[0]], points[line[-1]])
+
+        totalLength = 0
+        for i in range(len(line) - 1):
+            totalLength += TupleDistance(points[line[i]], points[line[i + 1]])
+
+        result.append(totalLength / straightLineDistance)
 
     return result
 
@@ -212,48 +228,4 @@ def CalculateWidthAtLineCenter(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray
         #add to result
         result.append(currentWidth)
     
-    return result
-
-#whether each line is straight
-def IsLineStraight(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[bool]:
-    requirementForStraight = 0.95
-    
-    result = []
-
-    for line in lines:
-        numPointsInLine = len(line)
-        
-        if numPointsInLine <= 2:
-            result.append(True)
-            continue
-
-        startPoint = points[line[0]]
-        endPoint = points[line[-1]]
-        midPoint = points[line[numPointsInLine // 2]]
-
-        startToEnd = (endPoint[0] - startPoint[0], endPoint[1] - startPoint[1])
-        startToEndLength = math.sqrt(pow(startToEnd[0], 2) + pow(startToEnd[1], 2))
-
-        if startToEndLength < 0.01:
-            result.append(True)
-            continue
-
-        startToEnd = (startToEnd[0] / startToEndLength, startToEnd[1] / startToEndLength)
-
-        startToMid = (midPoint[0] - startPoint[0], midPoint[1] - startPoint[1])
-        startToMidLength = math.sqrt(pow(startToMid[0], 2) + pow(startToMid[1], 2))
-
-        if startToMidLength < 0.01:
-            result.append(True)
-            continue
-
-        startToMid = (startToMid[0] / startToMidLength, startToMid[1] / startToMidLength)
-
-        similarity = abs((startToEnd[0] * startToMid[0]) + (startToEnd[1] * startToMid[1]))
-
-        if similarity > requirementForStraight:
-            result.append(True)
-        else:
-            result.append(False)
-
     return result
