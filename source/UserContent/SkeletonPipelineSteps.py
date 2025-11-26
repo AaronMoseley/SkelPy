@@ -27,6 +27,14 @@ def ConvertToGrayScale(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
 
     return imgArray
 
+def NormalizeImage(imgArray:np.ndarray, parameters) -> np.ndarray:
+    maxValue = np.max(imgArray)
+    minValue = np.min(imgArray)
+    imgArray -= minValue
+    maxValue -= minValue
+    imgArray /= maxValue
+    return imgArray
+
 def RadialThreshold(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     thresholds = CreateRadialMask(imgArray.shape[1], imgArray.shape[0], parameters["centerThreshold"], parameters["edgeThreshold"])
 

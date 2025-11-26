@@ -26,5 +26,9 @@
     "Convert To Grayscale": {
         "relatedParameters": [],
         "function": "convertToGrayScale"
+    },
+    "Normalize Image": {
+        "relatedParameters": [],
+        "function": "normalizeImage"
     }
 }

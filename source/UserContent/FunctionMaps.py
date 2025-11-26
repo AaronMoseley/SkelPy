@@ -9,6 +9,7 @@ PIPELINE_STEP_FUNCTION_MAP = {
     #more information about the function is included in source/UserContent/SkeletonPipelineSteps.py
 
     #"exampleFunction": ExamplePipelineFunction,
+    "normalizeImage": NormalizeImage,
     "convertToGrayScale": ConvertToGrayScale,
     "radialThreshold": RadialThreshold,
     "removeSmallWhiteIslands": CallRemoveSmallWhiteIslands,

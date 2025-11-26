@@ -3,6 +3,7 @@
         "name": "Sclerotia Primordia",
         "steps": [
             "Convert To Grayscale",
+            "Normalize Image",
             "Radial Threshold", 
             "Remove Small White Islands", 
             "Remove Noisy Islands", 
@@ -13,6 +14,7 @@
         "name": "Fungal Network",
         "steps": [
             "Convert To Grayscale",
+            "Normalize Image",
             "Adjust Contrast",
             "Edge Detection",
             "Smooth Image",
