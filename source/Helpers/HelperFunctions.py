@@ -1,5 +1,6 @@
 from PySide6.QtGui import QPixmap, QPen, QPainter, QColor, QImage
 from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QMessageBox
 
 import re
 import numpy as np
@@ -185,6 +186,13 @@ def DistanceToLine(P, A, B):
 
     # Return distance from P to the closest point
     return np.linalg.norm(P - closest_point)
+
+def ShowNotification(message):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.setWindowTitle("Notification")
+        msg.setText(message)
+        msg.exec()
 
 def TupleDistance(point1:tuple[float, float], point2:tuple[float, float]) -> float:
     return math.sqrt(math.pow(point2[0] - point1[0], 2) + math.pow(point2[1] - point1[1], 2))

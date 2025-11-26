@@ -12,7 +12,7 @@ import json
 
 from PIL import Image
 
-from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, IsPositiveNumeric, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
+from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, IsPositiveNumeric, ShowNotification, camel_case_to_capitalized, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
 from ..UIElements.ClickableLabel import ClickableLabel
 from ..UIElements.ProgressBar import ProgressBarPopup
 from ..Helpers.CreateSkeleton import GenerateSkeleton
@@ -66,6 +66,8 @@ class ImageOverview(QWidget):
 
 		self.sampleToFiles = {}
 		self.currentFileList = []
+
+		self.currentImageHasData = False
 
 		if os.path.exists(self.initSettingsFilePath):
 			self.LoadInitializationSettings()
@@ -467,6 +469,9 @@ class ImageOverview(QWidget):
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
 	def LoadPreview(self, currSkeletonKey:str) -> None:
+		if not self.currentImageHasData:
+			return
+		
 		currImageName = self.currentFileList[self.currentIndex]
 
 		currImagePath = os.path.join(self.defaultInputDirectory, currImageName)
@@ -481,6 +486,9 @@ class ImageOverview(QWidget):
 		self.LoadImageIntoUI(0)
 
 	def GoIntoSkeletonView(self, currSkeletonKey:str) -> None:
+		if not self.currentImageHasData:
+			return
+
 		self.ClickedOnSkeleton.emit(self.currentFileList[self.currentIndex], currSkeletonKey)
 
 	def LoadImageIntoUI(self, index:int) -> None:
@@ -519,18 +527,31 @@ class ImageOverview(QWidget):
 			for currSkeletonKey in self.skeletonPipelines:
 				self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
+			self.currentImageHasData = False
+
 			return
 
 		self.timestampLabel.setText(f"Timestamp: {calculations[timestampKey]}")
+
+		missingSkeleton = False
 
 		for currSkeletonKey in self.skeletonPipelines:
 			if currSkeletonKey not in calculations:
 				skeletonPixmap = QPixmap(self.imageSize, self.imageSize)
 				skeletonPixmap.fill(QColor("black"))
+				self.currentImageHasData = False
+				missingSkeleton = True
+
+				ShowNotification(f"Missing generated skeleton: {camel_case_to_capitalized(currSkeletonKey)}.\nPlease regenerate skeletons for this image.")
 			else:
 				skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
+
+		if not missingSkeleton:
+			self.currentImageHasData = True
+		else:
+			self.currentImageHasData = False
 
 		self.LoadedNewImage.emit(calculations)
 
