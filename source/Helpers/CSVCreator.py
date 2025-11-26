@@ -14,18 +14,22 @@ def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None
         #timestamp
         #different skeleton file names
     baseCSVPath = os.path.join(currentCSVDirectory, "fileInfo.csv")
-    baseCSVData = []
 
     skeletonTypes = []
 
+    baseCSVHeaders = []
+    baseCSVData = []
+
     for key in jsonObject:
         if not isinstance(jsonObject[key], dict):
-            baseCSVData.append([key, jsonObject[key]])
+            baseCSVHeaders.append(key)
+            baseCSVData.append(jsonObject[key])
         elif skeletonKey in jsonObject[key]:
             skeletonTypes.append(key)
-            baseCSVData.append([key, jsonObject[key][skeletonKey]])
+            baseCSVHeaders.append(key)
+            baseCSVData.append(jsonObject[key][skeletonKey])
 
-    WriteCSV(baseCSVData, baseCSVPath)
+    WriteCSV([baseCSVHeaders, baseCSVData], baseCSVPath)
 
     #loop through each skeleton
     for skeletonType in skeletonTypes:
@@ -42,8 +46,13 @@ def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None
 
         #create csv for line segments
         linesCSVPath = os.path.join(currentCSVDirectory, f"{skeletonType}_lines.csv")
+        maxPointCount = 1
+
+        for line in jsonObject[skeletonType][vectorKey][linesKey]:
+            maxPointCount = max(maxPointCount, len(line))
+            
         lineData = [
-            ["lineIndex", "pointIndices..."]
+            ["lineIndex"] + [f"pointIndex{i}" for i in range(maxPointCount)]
         ]
 
         for i, lineSegment in enumerate(jsonObject[skeletonType][vectorKey][linesKey]):
@@ -53,8 +62,14 @@ def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None
 
         #create csv for clusters
         clusterCSVPath = os.path.join(currentCSVDirectory, f"{skeletonType}_clusters.csv")
+
+        maxLineCount = 1
+
+        for cluster in jsonObject[skeletonType][vectorKey][clusterKey]:
+            maxLineCount = max(maxLineCount, len(cluster))
+
         clusterData = [
-            ["clusterIndex", "lineIndices..."]
+            ["clusterIndex"] + [f"lineIndex{i}" for i in range(maxLineCount)]
         ]
 
         for i, cluster in enumerate(jsonObject[skeletonType][vectorKey][clusterKey]):
