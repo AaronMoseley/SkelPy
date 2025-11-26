@@ -1,7 +1,7 @@
 import csv
 import os
 from .HelperFunctions import skeletonKey, pointsKey, linesKey, clusterKey, vectorKey, functionTypeKey, imageTypeKey, lineTypeKey, clusterTypeKey
-from UserContent.FunctionMaps import METRIC_FUNCTION_MAP
+from ..UserContent.FunctionMaps import METRIC_FUNCTION_MAP
 
 def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None:
     #create new directory

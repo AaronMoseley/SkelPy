@@ -4,13 +4,12 @@ from PySide6.QtCore import Qt, Signal
 
 from collections import OrderedDict
 from PIL import Image
-import os
 import numpy as np
 
 from ..Helpers.HelperFunctions import camel_case_to_capitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
 from ..UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
 from ..UIElements.CustomTextEdit import CustomTextEdit
-from UserContent.FunctionMaps import METRIC_FUNCTION_MAP
+from ..UserContent.FunctionMaps import METRIC_FUNCTION_MAP
 
 class SkeletonViewer(QWidget):
     BackButtonPressed = Signal()

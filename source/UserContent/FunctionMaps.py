@@ -2,7 +2,7 @@ from .ComparisonFunctions import *
 from .MetricFunctions import *
 from .SkeletonPipelineSteps import *
 
-from Helpers.HelperFunctions import functionKey, functionTypeKey, imageTypeKey, lineTypeKey, clusterTypeKey
+from ..Helpers.HelperFunctions import functionKey, functionTypeKey, imageTypeKey, lineTypeKey, clusterTypeKey
 
 PIPELINE_STEP_FUNCTION_MAP = {
     #below is an example entry into this map that should be the basis for including your own functions

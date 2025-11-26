@@ -1,4 +1,4 @@
-from Helpers.HelperFunctions import TupleDistance
+from ..Helpers.HelperFunctions import TupleDistance
 
 """
 The following is an example of a basic comparison function between two skeletons

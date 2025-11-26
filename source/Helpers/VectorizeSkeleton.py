@@ -110,7 +110,7 @@ def RemoveShortLines(lines:list[list[int]], minLength:int) -> list[list[int]]:
 
     return lines
 
-def perpendicular_distance(point:tuple[int, int], start:tuple[int, int], end:tuple[int, int]):
+def DistanceFromPointToLine(point:tuple[int, int], start:tuple[int, int], end:tuple[int, int]):
     """Calculate the perpendicular distance from a point to a line segment."""
     x0, y0 = point
     x1, y1 = start
@@ -123,7 +123,7 @@ def perpendicular_distance(point:tuple[int, int], start:tuple[int, int], end:tup
     den = math.hypot(y2 - y1, x2 - x1)
     return num / den
 
-def rdp(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list[int]:
+def RDP(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list[int]:
     """Simplify the polyline using the RDP algorithm.
 
     Args:
@@ -142,7 +142,7 @@ def rdp(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list
         end_point = points[polyline[end_idx]]
 
         for i in range(start_idx + 1, end_idx):
-            dist = perpendicular_distance(points[polyline[i]], start_point, end_point)
+            dist = DistanceFromPointToLine(points[polyline[i]], start_point, end_point)
             if dist > max_dist:
                 max_dist = dist
                 index = i
@@ -162,11 +162,11 @@ def rdp(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list
 
 def SimplifyLines(lines:list[list[int]], points:list[tuple[int, int]], maxDist:float) -> tuple[list, list]:
     for i in range(len(lines)):
-        lines[i] = rdp(points, lines[i], maxDist)
+        lines[i] = RDP(points, lines[i], maxDist)
 
     return lines, points
 
-def remove_unused_points(points, lines):
+def RemoveUnusedPoints(points, lines):
     # Step 1: Find all used point indices
     used_indices = set(index for line in lines for index in line)
 
@@ -190,7 +190,7 @@ def NormalizePoints(points:list[tuple[int, int]], width:int, height:int) -> list
 
     return newPoints
 
-def merge_nearby_points(points: list[tuple[float, float]], polylines: list[list[int]], max_distance: float):
+def MergeNearbyPoints(points: list[tuple[float, float]], polylines: list[list[int]], max_distance: float):
     def distance(p1, p2):
         return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
 
@@ -238,7 +238,7 @@ def merge_nearby_points(points: list[tuple[float, float]], polylines: list[list[
 
     return new_polylines, new_points
 
-def merge_polylines_at_unique_endpoints(polylines: list[list[int]]) -> list[list[int]]:
+def MergePolylinesAtEndpoints(polylines: list[list[int]]) -> list[list[int]]:
     # Count total occurrences of each point across all polylines
     point_usage = Counter(pt for poly in polylines for pt in poly)
     
@@ -357,11 +357,11 @@ def VectorizeSkeleton(skeleton:np.ndarray) -> tuple[list, list, list]:
     #simplify lines
     lines, points = SimplifyLines(lines, points, maxErrorDist)
 
-    lines, points = remove_unused_points(points, lines)
+    lines, points = RemoveUnusedPoints(points, lines)
 
-    lines, points = merge_nearby_points(points, lines, 0.004)
+    lines, points = MergeNearbyPoints(points, lines, 0.004)
 
-    lines = merge_polylines_at_unique_endpoints(lines)
+    lines = MergePolylinesAtEndpoints(lines)
 
     lines = RemoveZeroLengthLines(points, lines)
 
@@ -377,7 +377,7 @@ def RemoveZeroLengthLines(points, lines) -> list:
     while lineIndex < len(lines):
         totalLength = 0.0
 
-        lines[lineIndex] = remove_consecutive_duplicates(lines[lineIndex])
+        lines[lineIndex] = RemoveDuplicatedPoints(lines[lineIndex])
 
         currentLine = lines[lineIndex]
 
@@ -396,7 +396,7 @@ def RemoveZeroLengthLines(points, lines) -> list:
 
     return lines
 
-def remove_consecutive_duplicates(lst):
+def RemoveDuplicatedPoints(lst):
     if not lst:
         return []
     
