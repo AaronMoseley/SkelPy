@@ -12,7 +12,7 @@ import json
 
 from PIL import Image
 
-from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, IsPositiveNumeric, ShowNotification, camel_case_to_capitalized, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
+from ..Helpers.HelperFunctions import *
 from ..UIElements.ClickableLabel import ClickableLabel
 from ..UIElements.ProgressBar import ProgressBarPopup
 from ..Helpers.CreateSkeleton import GenerateSkeleton
@@ -242,10 +242,15 @@ class ImageOverview(QWidget):
 		
 		#save JSON file for image
 		fileNameSplit:list[str] = os.path.splitext(fileName)[0].split("_")
-		timestamp = int(fileNameSplit[-1])
+		timestamp = fileNameSplit[-1]
+		hasTimestamp = IsPositiveNumeric(timestamp) and len(fileNameSplit) > 1
 
-		jsonResult[timestampKey] = timestamp
-		jsonResult[sampleKey] = sample
+		if hasTimestamp:
+			jsonResult[timestampKey] = int(timestamp)
+			jsonResult[sampleKey] = sample
+		else:
+			jsonResult[timestampKey] = 0
+			jsonResult[sampleKey] = sample
 		
 		#get result from skeleton creator
 		for currSkeletonKey in self.skeletonPipelines:
@@ -514,7 +519,6 @@ class ImageOverview(QWidget):
 		calculations = self.GetCurrentCalculations()
 
 		if calculations is None:
-			#self.timestampLabel.setText(f"Timestamp: 0")
 			timestamp = os.path.splitext(imageFileName)[0].split("_")[-1]
 			if IsPositiveNumeric(timestamp):
 				self.timestampLabel.setText(f"Timestamp: {timestamp}")
@@ -612,9 +616,14 @@ class ImageOverview(QWidget):
 
 		for fileName in fileNames:
 			fileNameParts = os.path.splitext(fileName)[0].split("_")
-			del fileNameParts[-1]
 
-			sampleName = "_".join(fileNameParts)
+			hasTimestamp = IsPositiveNumeric(fileNameParts[-1]) and len(fileNameParts) > 1
+
+			if hasTimestamp:
+				del fileNameParts[-1]
+				sampleName = "_".join(fileNameParts)
+			else:
+				sampleName = os.path.splitext(fileName)[0]
 
 			if sampleName not in self.sampleToFiles:
 				self.sampleToFiles[sampleName] = [fileName]
