@@ -53,7 +53,10 @@ def Sinuosity(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list
         for i in range(len(line) - 1):
             totalLength += TupleDistance(points[line[i]], points[line[i + 1]])
 
-        result.append(totalLength / straightLineDistance)
+        if abs(straightLineDistance) < 1e-5:
+            result.append(0)
+        else:
+            result.append(totalLength / straightLineDistance)
 
     return result
 
@@ -192,7 +195,7 @@ def CalculateLineWidth(thresholdedImage:np.ndarray, direction:tuple[float, float
     #BFS to get the number of white pixels connected to starting point
     width = CountConnectedPixels(andImage, int(startingPoint[1] * thresholdedImage.shape[0]), int(startingPoint[0] * thresholdedImage.shape[1]))
     
-    width /= thresholdedImage.shape[0]
+    width /= max(thresholdedImage.shape[0], thresholdedImage.shape[1])
 
     return width
 

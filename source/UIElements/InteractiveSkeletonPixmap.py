@@ -46,6 +46,12 @@ class InteractiveSkeletonPixmap(QLabel):
         self.lines = lines
         self.clusters = clusters
 
+        self.hoveredLineIndex = None
+        self.hoveredClumpIndex = None
+
+        self.selectedLineIndex = None
+        self.selectedClumpIndex = None
+
         self.scaledWidth = width
         self.scaledHeight = height
 
@@ -81,6 +87,9 @@ class InteractiveSkeletonPixmap(QLabel):
         return math.sqrt(pow(point2[0] - point1[0], 2) + pow(point2[1] - point1[1], 2))
 
     def EmitLineData(self) -> None:
+        if self.selectedLineIndex is None:
+            return
+
         selectedLineLength = 0.0
         for i in range(len(self.lines[self.selectedLineIndex]) - 1):
             selectedLineLength += self.PointDistance(self.points[self.lines[self.selectedLineIndex][i]], self.points[self.lines[self.selectedLineIndex][i + 1]])
@@ -145,8 +154,8 @@ class InteractiveSkeletonPixmap(QLabel):
             local_x = pos.x() - x_offset
             local_y = pos.y() - y_offset
 
-            x = local_x / drawn_width
-            y = local_y / drawn_height
+            x = local_x / max(drawn_width, drawn_height)
+            y = local_y / max(drawn_width, drawn_height)
         else:
             return
 

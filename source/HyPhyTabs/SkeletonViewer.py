@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, Signal
 from collections import OrderedDict
 from PIL import Image
 import numpy as np
-import os
+from functools import partial
 
 from ..Helpers.HelperFunctions import camel_case_to_capitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
 from ..UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
@@ -56,14 +56,35 @@ class SkeletonViewer(QWidget):
 		self.imageTitleLabel = QLabel(self.imageTitleLabelPrefix)
 		topLayout.addWidget(self.imageTitleLabel, 4)
 
-		scaleLabelLayout = QHBoxLayout()
-		topLayout.addLayout(scaleLabelLayout, stretch=2)
-		scaleLabelLayout.addWidget(QLabel("Image Side Length (any unit):"))
-		self.imageScaleLineEdit = QLineEdit("1.0")
-		scaleLabelLayout.addWidget(self.imageScaleLineEdit)
-		validator = QDoubleValidator(0.0, 999, 2)
-		self.imageScaleLineEdit.setValidator(validator)
-		self.imageScaleLineEdit.editingFinished.connect(self.skeletonLabel.EmitLineData)
+		scaleLayout = QVBoxLayout()
+		scaleLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+		topLayout.addLayout(scaleLayout, stretch=2)
+		
+		unitsLayout = QHBoxLayout()
+		scaleLayout.addLayout(unitsLayout)
+		unitsLayout.addWidget(QLabel("Image Units:"))
+		self.unitsLineEdit = QLineEdit("mm")
+		self.unitsLineEdit.textEdited.connect(self.skeletonLabel.EmitLineData)
+		unitsLayout.addWidget(self.unitsLineEdit)
+
+		validator = QDoubleValidator()
+
+		widthLayout = QHBoxLayout()
+		scaleLayout.addLayout(widthLayout)
+		widthLayout.addWidget(QLabel("Image Width:"))
+		self.widthLineEdit = QLineEdit("1.0")
+		self.widthLineEdit.setValidator(validator)
+		widthLayout.addWidget(self.widthLineEdit)
+
+		heightLayout = QHBoxLayout()
+		scaleLayout.addLayout(heightLayout)
+		heightLayout.addWidget(QLabel("Image Height:"))
+		self.heightLineEdit = QLineEdit("1.0")
+		self.heightLineEdit.setValidator(validator)
+		heightLayout.addWidget(self.heightLineEdit)
+
+		self.widthLineEdit.textEdited.connect(partial(self.ImageDimensionsEdited, "width"))
+		self.heightLineEdit.textEdited.connect(partial(self.ImageDimensionsEdited, "height"))
 
 		lengthLayout = QHBoxLayout()
 		mainLayout.addLayout(lengthLayout, 1)
@@ -121,6 +142,24 @@ class SkeletonViewer(QWidget):
 
 		self.changingProgrammatically = False
 
+	def ImageDimensionsEdited(self, dimensionType:str, newText:str) -> None:
+		if len(newText) == 0:
+			return
+		
+		if len(newText) == 1 and not newText[0].isdigit():
+			return
+
+		if dimensionType == "width":
+			ratio = self.scaledHeight / self.scaledWidth
+			displayHeight = float(newText) * ratio
+			self.heightLineEdit.setText(str(displayHeight))
+		elif dimensionType == "height":
+			ratio = self.scaledWidth / self.scaledHeight
+			displayWidth = float(newText) * ratio
+			self.widthLineEdit.setText(str(displayWidth))
+
+		self.skeletonLabel.EmitLineData()
+
 	def BackToOverview(self) -> None:
 		self.BackButtonPressed.emit()
 
@@ -139,6 +178,8 @@ class SkeletonViewer(QWidget):
 		elif originalImageArray.shape[1] > originalImageArray.shape[0]:
 			#scale down height
 			self.scaledHeight = int(self.imageResolution * (originalImageArray.shape[0] / originalImageArray.shape[1]))
+
+		self.ImageDimensionsEdited("width", self.widthLineEdit.text())
 
 	def ReadComments(self, lineIndex:int, clusterIndex:int) -> None:
 		if lineIndex < 0 or clusterIndex < 0:
@@ -196,7 +237,7 @@ class SkeletonViewer(QWidget):
 								  self.selectedClusterTextbox.toPlainText())
 
 	def UpdateLengthLabels(self, lineLength:float, clumpLength:float, lineIndex:int, clumpIndex:int) -> None:
-		imageScale = float(self.imageScaleLineEdit.text())
+		imageScale = max(float(self.widthLineEdit.text()), float(self.heightLineEdit.text()))
 		
 		if lineLength < 0 or clumpLength < 0:
 			self.lineLengthLabel.setText(self.lineLengthPrefix + "N/A")
@@ -212,8 +253,8 @@ class SkeletonViewer(QWidget):
 
 				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: N/A")
 		else:
-			self.lineLengthLabel.setText(self.lineLengthPrefix + str(lineLength * imageScale))
-			self.clumpLengthLabel.setText(self.clumpLengthPrefix + str(clumpLength * imageScale))
+			self.lineLengthLabel.setText(self.lineLengthPrefix + str(lineLength * imageScale) + " " + self.unitsLineEdit.text())
+			self.clumpLengthLabel.setText(self.clumpLengthPrefix + str(clumpLength * imageScale) + " " + self.unitsLineEdit.text())
 
 			for statsLabelKey in self.calculationStatLabels:
 				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
@@ -228,10 +269,12 @@ class SkeletonViewer(QWidget):
 				elif METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == lineTypeKey:
 					value = self.currentResults[self.currentSkeletonKey][statsLabelKey][lineIndex]
 
+				suffix = ""
 				if METRIC_FUNCTION_MAP[statsLabelKey]["inImageSpace"]:
 					value *= imageScale
+					suffix = self.unitsLineEdit.text()
 
-				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: {value}")
+				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: {value} {suffix}")
 
 	def SetImage(self, imageName:str, currSkeletonKey:str) -> None:
 		self.currentImageName = imageName

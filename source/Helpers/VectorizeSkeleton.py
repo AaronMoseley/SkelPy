@@ -183,9 +183,11 @@ def RemoveUnusedPoints(points, lines):
     return new_lines, new_points
 
 def NormalizePoints(points:list[tuple[int, int]], width:int, height:int) -> list[tuple[float, float]]:
+    divisor = max(width, height)
+    
     newPoints = []
     for i in range(len(points)):
-        point = (points[i][0] / width, 1 - (points[i][1] / height))
+        point = (points[i][0] / divisor, 1 - (points[i][1] / divisor))
         newPoints.append(point)
 
     return newPoints

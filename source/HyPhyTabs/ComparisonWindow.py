@@ -125,7 +125,12 @@ class ComparisonWindow(QWidget):
 			#scale down height
 			self.scaledHeight = int(self.imageResolution * (inputImageArray.shape[0] / inputImageArray.shape[1]))
 
-		inputImageArray = NormalizeImageArray(inputImageArray)
+		maxValue = np.max(inputImageArray)
+		minValue = np.min(inputImageArray)
+		inputImageArray -= minValue
+		maxValue -= minValue
+		inputImageArray /= maxValue
+
 		inputImagePixmap = ArrayToPixmap(inputImageArray, dimension=self.imageResolution)
 		self.inputImageLabel.setPixmap(inputImagePixmap)
 

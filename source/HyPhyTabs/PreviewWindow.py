@@ -141,9 +141,16 @@ class PreviewWindow(QWidget):
 		self.AddParameterSliders(parameterValues)
 
 		origImg = Image.open(imagePath)
-		self.originalImageArray = np.asarray(origImg, dtype=np.float64)
-		self.originalImageArray = NormalizeImageArray(self.originalImageArray)
-		origImgPixmap = ArrayToPixmap(self.originalImageArray, self.imageResolution)
+		rawOriginalImageArray = np.asarray(origImg, dtype=np.float64)
+
+		maxValue = np.max(rawOriginalImageArray)
+		minValue = np.min(rawOriginalImageArray)
+		rawOriginalImageArray -= minValue
+		maxValue -= minValue
+		rawOriginalImageArray /= maxValue
+
+		self.originalImageArray = NormalizeImageArray(rawOriginalImageArray)
+		origImgPixmap = ArrayToPixmap(rawOriginalImageArray, self.imageResolution)
 		self.mainImageLabel.setPixmap(origImgPixmap)
 
 		self.LoadSkeletonStep()

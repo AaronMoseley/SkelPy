@@ -2,6 +2,7 @@
     "sclerotiaPrimordia": {
         "name": "Sclerotia Primordia",
         "steps": [
+            "Convert To Grayscale",
             "Radial Threshold", 
             "Remove Small White Islands", 
             "Remove Noisy Islands", 
@@ -11,6 +12,7 @@
     "network": {
         "name": "Fungal Network",
         "steps": [
+            "Convert To Grayscale",
             "Adjust Contrast",
             "Edge Detection",
             "Smooth Image",

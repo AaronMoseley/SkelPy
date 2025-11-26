@@ -11,13 +11,6 @@ def GenerateSkeleton(directory:str, fileName:str, parameters:list[dict], steps:l
     img = Image.open(filePath)
 
     originalImageArray = np.asarray(img, dtype=np.float64)
-
-    if originalImageArray.ndim > 2:
-        if originalImageArray.shape[-1] == 4:
-            originalImageArray = originalImageArray[:, :, :3]
-
-        originalImageArray = np.mean(originalImageArray, axis=-1)
-
     imgArray = np.copy(originalImageArray)
 
     maxValue = np.max(imgArray)

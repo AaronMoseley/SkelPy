@@ -18,6 +18,15 @@ def ExamplePipelineFunction(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
 
     return imgArray
 
+def ConvertToGrayScale(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    if imgArray.ndim > 2:
+        if imgArray.shape[-1] == 4:
+            imgArray = imgArray[:, :, :3]
+
+        imgArray = np.mean(imgArray, axis=-1)
+
+    return imgArray
+
 def RadialThreshold(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     thresholds = CreateRadialMask(imgArray.shape[1], imgArray.shape[0], parameters["centerThreshold"], parameters["edgeThreshold"])
 

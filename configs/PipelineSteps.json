@@ -22,5 +22,9 @@
     "Edge Detection": {
         "relatedParameters": ["gaussianBlurSigma", "maxThreshold", "minThreshold", "edgeNeighborRatio", "searchDistance"],
         "function": "edgeDetection"
+    },
+    "Convert To Grayscale": {
+        "relatedParameters": [],
+        "function": "convertToGrayScale"
     }
 }

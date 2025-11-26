@@ -58,8 +58,8 @@ def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]]
 
     # Helper to scale normalized points to pixel coordinates
     def scale_point(p):
-        x = int(p[0] * width)
-        y = int((1 - p[1]) * height)
+        x = int(p[0] * max(width, height))
+        y = int((1 - p[1]) * max(width, height))
         return QPoint(x, y)
 
     for lineIndex, line in enumerate(lines):
@@ -83,11 +83,8 @@ def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]]
 def ArrayToPixmap(array:np.ndarray, dimension:int=249, correctRange:bool=False, maxPoolDownSample:bool=False) -> QPixmap:
     arrayCopy = np.copy(array)
 
-    if arrayCopy.ndim > 2:
-        if arrayCopy.shape[-1] == 4:
-            arrayCopy = arrayCopy[:, :, :3]
-
-        arrayCopy = np.mean(arrayCopy, axis=-1)
+    if arrayCopy.ndim > 2 and arrayCopy.shape[-1] == 4:
+        arrayCopy = arrayCopy[:, :, :3]
 
     if not correctRange:
         arrayCopy *= 255.0
@@ -111,7 +108,10 @@ def ArrayToPixmap(array:np.ndarray, dimension:int=249, correctRange:bool=False, 
         resized_gray = max_pooling_downsample(arrayCopy, (scaledHeight, scaledWidth))
 
     # Convert to RGB by stacking channels
-    rgb_array = cv2.cvtColor(resized_gray, cv2.COLOR_GRAY2RGB)
+    if arrayCopy.ndim == 2:
+        rgb_array = cv2.cvtColor(resized_gray, cv2.COLOR_GRAY2RGB)
+    else:
+        rgb_array = resized_gray
 
     height, width, channels = rgb_array.shape
     bytesPerLine = width * channels
