@@ -8,9 +8,12 @@ import os
 
 from PIL import Image
 
-from .Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, comparisonFunctionMap, camel_case_to_capitalized
+from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, camel_case_to_capitalized
 
-from .Helpers.CreateSkeleton import CallSkeletonize, VectorizeSkeleton
+from UserContent.FunctionMaps import COMPARISON_FUNCTION_MAP
+
+from Helpers.VectorizeSkeleton import VectorizeSkeleton
+from UserContent.SkeletonPipelineSteps import CallSkeletonize
 
 class ComparisonWindow(QWidget):
 	BackToOverview = Signal()
@@ -99,7 +102,7 @@ class ComparisonWindow(QWidget):
 		statsLayout = QVBoxLayout()
 		imageLayout.addLayout(statsLayout)
 
-		for comparisonStatsKey in comparisonFunctionMap:
+		for comparisonStatsKey in COMPARISON_FUNCTION_MAP:
 			currentLabel = QLabel(camel_case_to_capitalized(comparisonStatsKey) + ": N/A")
 			statsLayout.addWidget(currentLabel)
 			self.comparisonStatsLabels[comparisonStatsKey] = currentLabel
@@ -150,7 +153,7 @@ class ComparisonWindow(QWidget):
 
 		#perform calculations
 		for comparisonStatKey in self.comparisonStatsLabels:
-			result = comparisonFunctionMap[comparisonStatKey](
+			result = COMPARISON_FUNCTION_MAP[comparisonStatKey](
 				(self.currentResults[self.skeletonType][vectorKey][linesKey], self.currentResults[self.skeletonType][vectorKey][pointsKey]),
 				(self.uploadedLines, self.uploadedPoints)
 			)

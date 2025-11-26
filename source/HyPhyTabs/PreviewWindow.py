@@ -1,19 +1,18 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QFileDialog, QLabel, QComboBox, QApplication
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal
 
 import numpy as np
 
 from functools import partial
 
 import os
-import json
 
 from PIL import Image
 
-from .Helpers.HelperFunctions import ArrayToPixmap, NormalizeImageArray
-from .UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
-from .Helpers.CreateSkeleton import stepFunctionMap
+from ..Helpers.HelperFunctions import ArrayToPixmap, NormalizeImageArray
+from ..UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
+from ..UserContent.FunctionMaps import PIPELINE_STEP_FUNCTION_MAP
 
 class PreviewWindow(QWidget):
 	BackToOverview = Signal()
@@ -201,7 +200,7 @@ class PreviewWindow(QWidget):
 		for i, stepName in enumerate(self.skeletonPipelines[self.currentSkeletonKey]["steps"][:self.currentStepIndex + 1]):
 			stepFunctionKey = self.pipelineSteps[stepName]["function"]
 
-			skeletonArray = stepFunctionMap[stepFunctionKey](skeletonArray, parameters[i])
+			skeletonArray = PIPELINE_STEP_FUNCTION_MAP[stepFunctionKey](skeletonArray, parameters[i])
 
 		skeletonArray = np.asarray(skeletonArray, dtype=np.float64)
 

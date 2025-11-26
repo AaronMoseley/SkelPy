@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QFileDialog, QLabel, QComboBox, QApplication, QScrollArea
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QFileDialog, QLabel, QComboBox, QApplication
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtCore import Qt, Signal
 
@@ -12,19 +12,15 @@ import json
 
 from PIL import Image
 
-from .Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
-from .UIElements.ClickableLabel import ClickableLabel
-from .UIElements.SliderLineEditCombo import SliderLineEditCombo
-from .UIElements.ProgressBar import ProgressBarPopup
-from .Helpers.CreateSkeleton import GenerateSkeleton
-from .Helpers.CSVCreator import GenerateCSVs
-import copy
+from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
+from ..UIElements.ClickableLabel import ClickableLabel
+from ..UIElements.ProgressBar import ProgressBarPopup
+from ..Helpers.CreateSkeleton import GenerateSkeleton
+from ..Helpers.CSVCreator import GenerateCSVs
 
 import time
 
-from .UIElements.SkeletonPipelineDisplay import SkeletonPipelineDisplay
-from .UIElements.SkeletonPipelineParameterSliders import SkeletonPipelineParameterSliders
-from .UIElements.SkeletonPipelineDisplayRegion import SkeletonPipelineDisplayRegion
+from ..UIElements.SkeletonPipelineDisplayRegion import SkeletonPipelineDisplayRegion
 
 class ImageOverview(QWidget):
 	ClickedOnSkeleton = Signal(str, str)

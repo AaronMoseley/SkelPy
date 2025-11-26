@@ -19,10 +19,10 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget, QStackedLayout, QMainWindow
 from PySide6.QtGui import QResizeEvent
 
-from source.ImageOverview import ImageOverview
-from source.SkeletonViewer import SkeletonViewer
-from source.PreviewWindow import PreviewWindow
-from source.ComparisonWindow import ComparisonWindow
+from source.HyPhyTabs.ImageOverview import ImageOverview
+from source.HyPhyTabs.SkeletonViewer import SkeletonViewer
+from source.HyPhyTabs.PreviewWindow import PreviewWindow
+from source.HyPhyTabs.ComparisonWindow import ComparisonWindow
 
 from source.Helpers.HelperFunctions import to_camel_case
 

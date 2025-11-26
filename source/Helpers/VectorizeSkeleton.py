@@ -406,7 +406,7 @@ def remove_consecutive_duplicates(lst):
             result.append(item)
     return result
 
-def plot_points_and_lines(points, lines):
+def PlotPointsAndLines(points, lines):
     """
     Plots a set of points and lines using matplotlib, flipped vertically with no legend.
 

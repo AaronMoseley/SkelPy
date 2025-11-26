@@ -1,8 +1,4 @@
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QProgressBar, QLabel
-)
-from PySide6.QtCore import Qt
-
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QLabel
 
 class ProgressBarPopup(QWidget):
     def __init__(self, title="Progress", message="Processing...", maximum=100):

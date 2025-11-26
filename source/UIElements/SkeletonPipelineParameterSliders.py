@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QLineEdit, QLabel, QPushButton
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QDoubleValidator, QFont
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLineEdit, QLabel, QPushButton
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QFont
 
 from .StepWithParameters import StepWithParameters
 from ..Helpers.HelperFunctions import to_camel_case

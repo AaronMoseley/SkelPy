@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QFileDialog, QLabel, QApplication, QTextEdit
+from PySide6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QApplication
 from PySide6.QtGui import QPixmap, QColor, QResizeEvent, QDoubleValidator
 from PySide6.QtCore import Qt, Signal
 
@@ -7,9 +7,10 @@ from PIL import Image
 import os
 import numpy as np
 
-from .Helpers.HelperFunctions import camel_case_to_capitalized, ArrayToPixmap, originalImageKey, statFunctionMap, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
-from .UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
-from .UIElements.CustomTextEdit import CustomTextEdit
+from ..Helpers.HelperFunctions import camel_case_to_capitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
+from ..UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
+from ..UIElements.CustomTextEdit import CustomTextEdit
+from UserContent.FunctionMaps import METRIC_FUNCTION_MAP
 
 class SkeletonViewer(QWidget):
     BackButtonPressed = Signal()
@@ -88,7 +89,7 @@ class SkeletonViewer(QWidget):
 
         self.calculationStatLabels = OrderedDict()
 
-        for key in statFunctionMap:
+        for key in METRIC_FUNCTION_MAP:
             title = camel_case_to_capitalized(key)
             newLabel = QLabel(f"{title}: ")
             self.calculationStatLabels[key] = newLabel
@@ -187,12 +188,12 @@ class SkeletonViewer(QWidget):
             self.clumpLengthLabel.setText(self.clumpLengthPrefix + "N/A")
 
             for statsLabelKey in self.calculationStatLabels:
-                if statFunctionMap[statsLabelKey][functionTypeKey] == imageTypeKey:
+                if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
                     continue
 
                 title = camel_case_to_capitalized(statsLabelKey)
 
-                subtitle = f"(per {statFunctionMap[statsLabelKey][functionTypeKey]})"
+                subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
                 self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: N/A")
         else:
@@ -200,19 +201,19 @@ class SkeletonViewer(QWidget):
             self.clumpLengthLabel.setText(self.clumpLengthPrefix + str(clumpLength * imageScale))
 
             for statsLabelKey in self.calculationStatLabels:
-                if statFunctionMap[statsLabelKey][functionTypeKey] == imageTypeKey:
+                if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
                     continue
 
                 title = camel_case_to_capitalized(statsLabelKey)
 
-                subtitle = f"(per {statFunctionMap[statsLabelKey][functionTypeKey]})"
+                subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
-                if statFunctionMap[statsLabelKey][functionTypeKey] == clusterTypeKey:
+                if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == clusterTypeKey:
                     value = self.currentResults[self.currentSkeletonKey][statsLabelKey][clumpIndex]
-                elif statFunctionMap[statsLabelKey][functionTypeKey] == lineTypeKey:
+                elif METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == lineTypeKey:
                     value = self.currentResults[self.currentSkeletonKey][statsLabelKey][lineIndex]
 
-                if statFunctionMap[statsLabelKey]["inImageSpace"]:
+                if METRIC_FUNCTION_MAP[statsLabelKey]["inImageSpace"]:
                     value *= imageScale
 
                 self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: {value}")
@@ -243,9 +244,9 @@ class SkeletonViewer(QWidget):
         for statsLabelKey in self.calculationStatLabels:
             title = camel_case_to_capitalized(statsLabelKey)
 
-            subtitle = f"(per {statFunctionMap[statsLabelKey][functionTypeKey]})"
+            subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
-            if statFunctionMap[statsLabelKey][functionTypeKey] == imageTypeKey:
+            if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
                 self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: {self.currentResults[currSkeletonKey][statsLabelKey]}")
             else:
                 self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: N/A")

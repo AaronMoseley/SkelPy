@@ -1,6 +1,7 @@
 import csv
 import os
-from .HelperFunctions import skeletonKey, pointsKey, linesKey, clusterKey, statFunctionMap, vectorKey, functionTypeKey, imageTypeKey, lineTypeKey, clusterTypeKey
+from .HelperFunctions import skeletonKey, pointsKey, linesKey, clusterKey, vectorKey, functionTypeKey, imageTypeKey, lineTypeKey, clusterTypeKey
+from UserContent.FunctionMaps import METRIC_FUNCTION_MAP
 
 def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None:
     #create new directory
@@ -67,18 +68,18 @@ def GenerateCSVs(jsonObject:dict, baseFileName:str, outputDirectory:str) -> None
             ["name", "value", "lineIndex", "clusterIndex"]
         ]
 
-        for statFunctionKey in statFunctionMap:
-            if not isinstance(jsonObject[skeletonType][statFunctionKey], list) or statFunctionMap[statFunctionKey][functionTypeKey] == imageTypeKey:
-                metadataData.append([statFunctionKey, jsonObject[skeletonType][statFunctionKey], "", ""])
+        for metricFunctionKey in METRIC_FUNCTION_MAP:
+            if not isinstance(jsonObject[skeletonType][metricFunctionKey], list) or METRIC_FUNCTION_MAP[metricFunctionKey][functionTypeKey] == imageTypeKey:
+                metadataData.append([metricFunctionKey, jsonObject[skeletonType][metricFunctionKey], "", ""])
                 continue
 
-            if statFunctionMap[statFunctionKey][functionTypeKey] == imageTypeKey:
+            if METRIC_FUNCTION_MAP[metricFunctionKey][functionTypeKey] == imageTypeKey:
                 continue
 
-            for i, value in enumerate(jsonObject[skeletonType][statFunctionKey]):
-                line = [statFunctionKey, value]
+            for i, value in enumerate(jsonObject[skeletonType][metricFunctionKey]):
+                line = [metricFunctionKey, value]
 
-                if statFunctionMap[statFunctionKey][functionTypeKey] == lineTypeKey:
+                if METRIC_FUNCTION_MAP[metricFunctionKey][functionTypeKey] == lineTypeKey:
                     line.append(i)
                     line.append("")
                 else:
