@@ -12,7 +12,7 @@ import json
 
 from PIL import Image
 
-from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
+from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, to_camel_case, IsPositiveNumeric, skeletonKey, originalImageKey, vectorKey, pointsKey, linesKey, timestampKey, sampleKey
 from ..UIElements.ClickableLabel import ClickableLabel
 from ..UIElements.ProgressBar import ProgressBarPopup
 from ..Helpers.CreateSkeleton import GenerateSkeleton
@@ -277,10 +277,16 @@ class ImageOverview(QWidget):
 	def UpdateComments(self, currSkeletonKey:str, lineIndex:int, lineComments:str, clusterIndex:int, clusterComments:str) -> None:
 		calculations = self.GetCurrentCalculations()
 
+		if calculations is None:
+			return
+
 		calculations[currSkeletonKey]["lineComments"][str(lineIndex)] = lineComments
 		calculations[currSkeletonKey]["clusterComments"][str(clusterIndex)] = clusterComments
 
 		calculationsFilePath = self.GetCurrentCalculationsFile()
+
+		if not os.path.exists(calculationsFilePath):
+			return
 
 		jsonFile = open(calculationsFilePath, "w")
 		json.dump(calculations, jsonFile, indent=4)
@@ -418,6 +424,9 @@ class ImageOverview(QWidget):
 	def GetCurrentCalculations(self) -> dict:
 		calculationFilePath = self.GetCurrentCalculationsFile()
 
+		if not os.path.exists(calculationFilePath):
+			return None
+
 		calculationFile = open(calculationFilePath, "r")
 		calculations = json.load(calculationFile)
 		calculationFile.close()
@@ -427,6 +436,9 @@ class ImageOverview(QWidget):
 	def ToggleOverlay(self, currSkeletonKey:str) -> None:
 		imageFileName = self.currentFileList[self.currentIndex]
 		calculations = self.GetCurrentCalculations()
+
+		if calculations is None:
+			return
 		
 		if not currSkeletonKey in self.currentSkeletonsOverlayed:
 			self.currentSkeletonsOverlayed.add(currSkeletonKey)
@@ -478,10 +490,6 @@ class ImageOverview(QWidget):
 
 		imageFileName = self.currentFileList[index]
 
-		calculations = self.GetCurrentCalculations()
-
-		self.timestampLabel.setText(f"Timestamp: {calculations[timestampKey]}")
-
 		originalImage = Image.open(os.path.join(self.defaultInputDirectory, imageFileName))
 		originalImageArray = np.asarray(originalImage, dtype=np.float64).copy()
 
@@ -495,11 +503,32 @@ class ImageOverview(QWidget):
 
 		self.originalImageLabel.setPixmap(originalImagePixmap)
 
+		calculations = self.GetCurrentCalculations()
+
+		if calculations is None:
+			#self.timestampLabel.setText(f"Timestamp: 0")
+			timestamp = os.path.splitext(imageFileName)[0].split("_")[-1]
+			if IsPositiveNumeric(timestamp):
+				self.timestampLabel.setText(f"Timestamp: {timestamp}")
+			else:
+				self.timestampLabel.setText(f"Timestamp: 0")
+
+			skeletonPixmap = QPixmap(self.imageSize, self.imageSize)
+			skeletonPixmap.fill(QColor("black"))
+
+			for currSkeletonKey in self.skeletonPipelines:
+				self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
+
+			return
+
+		self.timestampLabel.setText(f"Timestamp: {calculations[timestampKey]}")
+
 		for currSkeletonKey in self.skeletonPipelines:
 			if currSkeletonKey not in calculations:
-				continue
-
-			skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize)
+				skeletonPixmap = QPixmap(self.imageSize, self.imageSize)
+				skeletonPixmap.fill(QColor("black"))
+			else:
+				skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.imageSize)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
@@ -538,8 +567,8 @@ class ImageOverview(QWidget):
 		if not os.path.exists(self.defaultOutputDirectory):
 			return
 		
-		if len(os.listdir(self.defaultOutputDirectory)) < len(os.listdir(self.defaultInputDirectory)) * len(self.skeletonPipelines) + 1:
-			return
+		#if len(os.listdir(self.defaultOutputDirectory)) < len(os.listdir(self.defaultInputDirectory)) * len(self.skeletonPipelines) + 1:
+		#	return
 			
 		self.GetSamples(self.defaultInputDirectory)
 

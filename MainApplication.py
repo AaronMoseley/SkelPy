@@ -154,7 +154,12 @@ class MainApplication(QWidget):
         self.primaryLayout.setCurrentWidget(self.skeletonViewer)
 
     def GoIntoComparison(self, currSkeletonKey:str) -> None:
-        self.comparisonWindow.SetImage(self.overview.GetCurrentCalculations(), currSkeletonKey)
+        calculations = self.overview.GetCurrentCalculations()
+
+        if calculations is None:
+            return
+
+        self.comparisonWindow.SetImage(calculations, currSkeletonKey)
         self.primaryLayout.setCurrentWidget(self.comparisonWindow)
 
     def BackToOverview(self) -> None:

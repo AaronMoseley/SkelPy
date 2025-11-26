@@ -34,6 +34,16 @@ def camel_case_to_capitalized(text):
     """
     return re.sub(r"([A-Z])", r" \1", text).title()
 
+def IsPositiveNumeric(inputStr:str) -> bool:
+    if len(inputStr) == 0:
+        return False
+    
+    for character in inputStr:
+        if not character.isdigit():
+            return False
+        
+    return True
+
 def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]], 
                          dimension:int=249, colorMap:dict={}, line_color=QColor("white"), line_width=2, pixmap:QPixmap=None):
     if pixmap is None:
