@@ -32,6 +32,18 @@ def ExampleComparisonFunction(skeleton1:tuple[list[list[int]], list[tuple[float,
     return 0.0
 
 def AvgDistanceToClosestPoint(skeleton1:tuple[list[list[int]], list[tuple[float, float]]], skeleton2:tuple[list[list[int]], list[tuple[float, float]]]) -> float:
+    """
+    Calculates the average distance from a point on skeleton1 to its closest point on skeleton2.
+
+    Args:
+        skeleton1 (tuple[list[list[int]], list[tuple[float, float]]]): The first skeleton, represented as a tuple of its list of lines and its list of points respectively. Each line in the list of lines is represented as a list of indices into the list of points. Each point in the list of points is represented as a tuple of XY coordinates in the 0-1 range.
+        skeleton2 (tuple[list[list[int]], list[tuple[float, float]]]): The second skeleton, represented as a tuple of its list of lines and its list of points respectively. Each line in the list of lines is represented as a list of indices into the list of points. Each point in the list of points is represented as a tuple of XY coordinates in the 0-1 range.
+    
+    Returns:
+        float: The average distance from a point on skeleton1 to its closest point on skeleton2.
+    
+    """
+    
     totalDistance = 0.0
     
     for point1 in skeleton1[1]:
@@ -45,6 +57,18 @@ def AvgDistanceToClosestPoint(skeleton1:tuple[list[list[int]], list[tuple[float,
     return totalDistance / len(skeleton1[1])
 
 def MaxDistanceToClosestPoint(skeleton1:tuple[list[list[int]], list[tuple[float, float]]], skeleton2:tuple[list[list[int]], list[tuple[float, float]]]) -> float:
+    """
+    Calculates the maximum distance from a point on skeleton1 to its closest point on skeleton2. Also known as the Hausdorff Distance (https://en.wikipedia.org/wiki/Hausdorff_distance).
+
+    Args:
+        skeleton1 (tuple[list[list[int]], list[tuple[float, float]]]): The first skeleton, represented as a tuple of its list of lines and its list of points respectively. Each line in the list of lines is represented as a list of indices into the list of points. Each point in the list of points is represented as a tuple of XY coordinates in the 0-1 range.
+        skeleton2 (tuple[list[list[int]], list[tuple[float, float]]]): The second skeleton, represented as a tuple of its list of lines and its list of points respectively. Each line in the list of lines is represented as a list of indices into the list of points. Each point in the list of points is represented as a tuple of XY coordinates in the 0-1 range.
+    
+    Returns:
+        float: The maximum distance from a point on skeleton1 to its closest point on skeleton2.
+    
+    """
+    
     maxDistance = 0.0
     
     for point1 in skeleton1[1]:

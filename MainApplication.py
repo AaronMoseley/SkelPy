@@ -26,12 +26,20 @@ from source.HyPhyTabs.ComparisonWindow import ComparisonWindow
 
 from source.Helpers.HelperFunctions import to_camel_case
 
+import platform
+import pathlib
 import json
 import os
 
 class MainApplication(QWidget):
     def __init__(self) -> None:
         super().__init__()
+
+        if platform.system() == "Darwin":
+            if getattr(sys, "frozen", False):
+                os.chdir(os.path.dirname(os.path.abspath(sys.executable)))
+            else:
+                os.chdir(pathlib.Path(os.path.dirname(os.path.abspath(__file__))))
 
         screen_geometry = QApplication.primaryScreen().availableGeometry()
         screen_size = screen_geometry.size()
