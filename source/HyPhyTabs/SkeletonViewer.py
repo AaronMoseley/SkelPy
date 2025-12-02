@@ -7,7 +7,7 @@ from PIL import Image
 import numpy as np
 from functools import partial
 
-from ..Helpers.HelperFunctions import camel_case_to_capitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
+from ..Helpers.HelperFunctions import CamelCaseToCapitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
 from ..UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
 from ..UIElements.CustomTextEdit import CustomTextEdit
 from ..UserContent.FunctionMaps import METRIC_FUNCTION_MAP
@@ -113,7 +113,7 @@ class SkeletonViewer(QWidget):
 		self.calculationStatLabels = OrderedDict()
 
 		for key in METRIC_FUNCTION_MAP:
-			title = camel_case_to_capitalized(key)
+			title = CamelCaseToCapitalized(key)
 			newLabel = QLabel(f"{title}: ")
 			self.calculationStatLabels[key] = newLabel
 			newLabel.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -247,7 +247,7 @@ class SkeletonViewer(QWidget):
 				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
 					continue
 
-				title = camel_case_to_capitalized(statsLabelKey)
+				title = CamelCaseToCapitalized(statsLabelKey)
 
 				subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
@@ -260,7 +260,7 @@ class SkeletonViewer(QWidget):
 				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
 					continue
 
-				title = camel_case_to_capitalized(statsLabelKey)
+				title = CamelCaseToCapitalized(statsLabelKey)
 
 				subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
@@ -302,7 +302,7 @@ class SkeletonViewer(QWidget):
 		self.origImageLabel.setPixmap(originalImagePixmap)
 
 		for statsLabelKey in self.calculationStatLabels:
-			title = camel_case_to_capitalized(statsLabelKey)
+			title = CamelCaseToCapitalized(statsLabelKey)
 
 			subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 

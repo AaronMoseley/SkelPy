@@ -463,7 +463,7 @@ class ImageOverview(QWidget):
 
 			originalImagePixmap = ArrayToPixmap(originalImageArray, self.imageSize, False)
 
-			overlayedPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], 
+			overlayedPixmap = DrawLinesOnPixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], 
 										  		   self.scaledWidth, self.scaledHeight,
 												   line_width=1, line_color=QColor("red"), pixmap=originalImagePixmap)
 
@@ -471,7 +471,7 @@ class ImageOverview(QWidget):
 		else:
 			self.currentSkeletonsOverlayed.remove(currSkeletonKey)
 
-			skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
+			skeletonPixmap = DrawLinesOnPixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
@@ -558,9 +558,9 @@ class ImageOverview(QWidget):
 				self.currentImageHasData = False
 				missingSkeleton = True
 
-				ShowNotification(f"Missing generated skeleton: {camel_case_to_capitalized(currSkeletonKey)}.\nPlease regenerate skeletons for this image.")
+				ShowNotification(f"Missing generated skeleton: {CamelCaseToCapitalized(currSkeletonKey)}.\nPlease regenerate skeletons for this image.")
 			else:
-				skeletonPixmap = draw_lines_on_pixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
+				skeletonPixmap = DrawLinesOnPixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
 
@@ -603,9 +603,6 @@ class ImageOverview(QWidget):
 		
 		if not os.path.exists(self.defaultOutputDirectory):
 			return
-		
-		#if len(os.listdir(self.defaultOutputDirectory)) < len(os.listdir(self.defaultInputDirectory)) * len(self.skeletonPipelines) + 1:
-		#	return
 			
 		self.GetSamples(self.defaultInputDirectory)
 

@@ -23,19 +23,28 @@ lineTypeKey = "line"
 timestampKey = "timestamp"
 sampleKey = "sample"
 
-def camel_case_to_capitalized(text):
+def CamelCaseToCapitalized(text:str) -> str:
     """
     Converts a camel case string to a capitalized string with spaces.
 
     Args:
-        text: The camel case string to convert.
+        text (str): The camel case string to convert.
 
     Returns:
-        The capitalized string with spaces.
+        str: The capitalized string with spaces.
     """
     return re.sub(r"([A-Z])", r" \1", text).title()
 
 def IsPositiveNumeric(inputStr:str) -> bool:
+    """
+    Detects whether a string is both numeric and positive.
+
+    Args:
+        inputStr (str): The string to check.
+
+    Returns:
+        bool: Whether the string is both positive and numeric.
+    """
     if len(inputStr) == 0:
         return False
     
@@ -45,8 +54,26 @@ def IsPositiveNumeric(inputStr:str) -> bool:
         
     return True
 
-def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]], 
-                         width:int=249, height:int=249, colorMap:dict={}, line_color=QColor("white"), line_width=2, pixmap:QPixmap=None):
+def DrawLinesOnPixmap(points:list[tuple[float, float]], lines:list[list[int]], 
+                         width:int=249, height:int=249, colorMap:dict={}, line_color=QColor("white"), 
+                         line_width:int=2, pixmap:QPixmap=None) -> QPixmap:
+    """
+    Draw lines of any color on a provided or all-black pixmap.
+
+    Args:
+        points (list[tuple[float, float]]): A list of points represented as XY coordinates normalized to 0-1.
+        lines (list[list[int]]): A list of lines, each represented as a list of indices into the points list.
+        width (int): The width of the new pixmap in pixels.
+        height (int): The height of the new pixmap in pixels.
+        colorMap (dict[int, QColor]): A map from line index to color of the line for when certain lines need to be colored differently than others.
+        line_color (QColor): The line color for all lines not contained in colorMap.
+        line_width (int): The width of each line in pixels.
+        pixmap (QPixmap): An optional input pixmap that will be used as a background for drawing on.
+
+    Returns:
+        QPixmap: The pixmap with lines drawn on it.
+    """
+
     if pixmap is None:
         pixmap = QPixmap(width, height)
         pixmap.fill(QColor("black"))
@@ -81,6 +108,19 @@ def draw_lines_on_pixmap(points:list[tuple[float, float]], lines:list[list[int]]
     return pixmap
 
 def ArrayToPixmap(array:np.ndarray, dimension:int=249, correctRange:bool=False, maxPoolDownSample:bool=False) -> QPixmap:
+    """
+    Converts an input numpy array to a QPixmap.
+
+    Args:
+        array (np.ndarray): The input array. The array shape is assumed to be (H, W, C) for RGB/RGBA images or (H, W) for grayscale images. If there are 4 channels, the 4th is assumed to be an alpha channel and removed.
+        dimension (int): The maximum dimension for the new pixmap. For non-square images, this can become either the height or width but neither dimension will exceed this value.
+        correctRange (bool): Whether the array is given in the correct range (0-255). If false, the array is assumed to be 0-1 and scaled up.
+        maxPoolDownSample (bool): Whether to use max pool downsampling on grayscale images when scaling the pixmap image. If false or if the given image is RGB instead of grayscale, cubic resampling is used.
+
+    Returns:
+        QPixmap: The pixmap created from the input array.
+    """
+
     arrayCopy = np.copy(array)
 
     if arrayCopy.ndim > 2 and arrayCopy.shape[-1] == 4:
@@ -101,39 +141,37 @@ def ArrayToPixmap(array:np.ndarray, dimension:int=249, correctRange:bool=False, 
         #scale down width
         scaledHeight = int(dimension * (arrayCopy.shape[0] / arrayCopy.shape[1]))
 
-    # Resize using OpenCV
-    if not maxPoolDownSample:
-        resized_gray = cv2.resize(arrayCopy, (scaledWidth, scaledHeight), interpolation=cv2.INTER_CUBIC)
+    if maxPoolDownSample and arrayCopy.ndim == 2:
+        resizedImage = MaxPoolingDownsample(arrayCopy, (scaledHeight, scaledWidth))
     else:
-        resized_gray = max_pooling_downsample(arrayCopy, (scaledHeight, scaledWidth))
+        resizedImage = cv2.resize(arrayCopy, (scaledWidth, scaledHeight), interpolation=cv2.INTER_CUBIC)
 
-    # Convert to RGB by stacking channels
     if arrayCopy.ndim == 2:
-        rgb_array = cv2.cvtColor(resized_gray, cv2.COLOR_GRAY2RGB)
+        rgbArray = cv2.cvtColor(resizedImage, cv2.COLOR_GRAY2RGB)
     else:
-        rgb_array = resized_gray
+        rgbArray = resizedImage
 
-    height, width, channels = rgb_array.shape
+    height, width, channels = rgbArray.shape
     bytesPerLine = width * channels
-    qImage = QImage(rgb_array.data, width, height, bytesPerLine, QImage.Format.Format_RGB888)
+    qImage = QImage(rgbArray.data, width, height, bytesPerLine, QImage.Format.Format_RGB888)
     qImage = qImage.copy()
     newPixmap = QPixmap.fromImage(qImage)
     return newPixmap
 
-def max_pooling_downsample(image: np.ndarray, output_shape: tuple) -> np.ndarray:
+def MaxPoolingDownsample(image: np.ndarray, outputShape: tuple[int, int]) -> np.ndarray:
     """
-    Downsamples a 2D grayscale image using max pooling, even when input
-    dimensions are not divisible by the output dimensions.
+    Downscales a grayscale image to a given shape.
 
-    Parameters:
-    - image (np.ndarray): 2D array of dtype np.uint8, shape (H, W)
-    - output_shape (tuple): Target shape (new_H, new_W)
+    Args:
+        image (np.ndarray): The input image to be downscaled. The shape of the array is assumed as (H, W).
+        outputShape (tuple[int, int]): The new height and width for the resized image.
 
     Returns:
-    - np.ndarray: Downsampled 2D array of shape output_shape, dtype np.uint8
+        np.ndarray: The resized image array.
     """
+
     input_h, input_w = image.shape
-    output_h, output_w = output_shape
+    output_h, output_w = outputShape
 
     pooled = np.zeros((output_h, output_w), dtype=np.uint8)
 
@@ -154,6 +192,16 @@ def max_pooling_downsample(image: np.ndarray, output_shape: tuple) -> np.ndarray
     return pooled
 
 def NormalizeImageArray(array:np.ndarray) -> np.ndarray:
+    """
+    Normalizes an image array to the 0-1 range. The function subtracts the minimum value then divides by the maximum value in the modified array.
+
+    Args:
+        array (np.ndarray): The input image array.
+
+    Returns:
+        np.ndarray: The normalized image array.
+    """
+
     arrayCopy = np.copy(array)
     
     maxValue = np.max(arrayCopy)
@@ -162,46 +210,83 @@ def NormalizeImageArray(array:np.ndarray) -> np.ndarray:
     maxValue -= minValue
     arrayCopy /= maxValue
 
-    if arrayCopy.ndim > 2:
-        return arrayCopy.mean(axis=-1)
-
     return arrayCopy
 
-def to_camel_case(text:str):
+def ConvertToGrayScale(array:np.ndarray) -> np.ndarray:
+    """
+    Converts an RGB image to a grayscale image. If this is a grayscale image, the original array is returned. The input array is assumed to be of the shape (H, W, 3) or (H, W).
+
+    Args:
+        array (np.ndarray): The input image array.
+
+    Returns:
+        np.ndarray: The grayscale image array.
+    """
+
+    arrayCopy = np.copy(array)
+    
+    if arrayCopy.ndim > 2:
+        return arrayCopy.mean(axis=-1)
+    
+    return arrayCopy
+
+def to_camel_case(text:str) -> str:
+    """
+    Converts a string of text separated by spaces into a camel case string.
+
+    Args:
+        text (str): The input string.
+
+    Returns:
+        str: The camel case string.
+    """
+
     words = text.split()
     if not words:
         return ""
     # Lowercase the first word, capitalize the rest
     return words[0].lower() + ''.join(word.capitalize() for word in words[1:])
 
-def DistanceToLine(P, A, B):
-    P = np.array(P, dtype=float)
-    A = np.array(A, dtype=float)
-    B = np.array(B, dtype=float)
+def DistanceToLine(inputPoint:tuple[float, float], lineStartPoint:tuple[float, float], lineEndPoint:tuple[float, float]) -> float:
+    """
+    Finds the distance from an input point to a line given the start and end points of the line.
+
+    Args:
+        inputPoint (tuple[float, float]): The input point represented as XY coordinates.
+        lineStartPoint (tuple[float, float]): The line's start point represented as XY coordinates.
+        lineEndPoint (tuple[float, float]): The line's end point represented as XY coordinates.
+
+    Returns:
+        float: The distance from the input point to the line.
+    """
+
+    inputPoint = np.array(inputPoint, dtype=float)
+    lineStartPoint = np.array(lineStartPoint, dtype=float)
+    lineEndPoint = np.array(lineEndPoint, dtype=float)
     
-    AB = B - A
-    AP = P - A
+    AB = lineEndPoint - lineStartPoint
+    AP = inputPoint - lineStartPoint
     AB_len_squared = np.dot(AB, AB)
 
     if AB_len_squared == 0:
         # A and B are the same point
-        return np.linalg.norm(P - A)
+        return np.linalg.norm(inputPoint - lineStartPoint)
 
     # Project point P onto the line AB, computing parameter t of the projection
     t = np.dot(AP, AB) / AB_len_squared
 
     if t < 0.0:
         # Closest to point A
-        closest_point = A
+        closest_point = lineStartPoint
     elif t > 1.0:
         # Closest to point B
-        closest_point = B
+        closest_point = lineEndPoint
     else:
         # Projection falls on the segment
-        closest_point = A + t * AB
+        closest_point = lineStartPoint + t * AB
 
     # Return distance from P to the closest point
-    return np.linalg.norm(P - closest_point)
+    return np.linalg.norm(inputPoint - closest_point)
 
 def ShowNotification(message):
         msg = QMessageBox()
@@ -211,4 +296,15 @@ def ShowNotification(message):
         msg.exec()
 
 def TupleDistance(point1:tuple[float, float], point2:tuple[float, float]) -> float:
+    """
+    Calculates the Euclidean distance between two 2D points.
+
+    Args:
+        point1 (tuple[float, float]): The first point represented as XY coordinates.
+        point2 (tuple[float, float]): The second point represented as XY coordinates.
+
+    Returns:
+        float: The distance from the first point to the second point.
+    """
+
     return math.sqrt(math.pow(point2[0] - point1[0], 2) + math.pow(point2[1] - point1[1], 2))

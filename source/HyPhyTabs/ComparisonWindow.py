@@ -8,7 +8,7 @@ import os
 
 from PIL import Image
 
-from ..Helpers.HelperFunctions import draw_lines_on_pixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, camel_case_to_capitalized
+from ..Helpers.HelperFunctions import DrawLinesOnPixmap, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, NormalizeImageArray, CamelCaseToCapitalized, ConvertToGrayScale
 from ..UserContent.FunctionMaps import COMPARISON_FUNCTION_MAP
 from ..Helpers.VectorizeSkeleton import VectorizeSkeleton
 from ..UserContent.SkeletonPipelineSteps import CallSkeletonize
@@ -103,7 +103,7 @@ class ComparisonWindow(QWidget):
 		imageLayout.addLayout(statsLayout)
 
 		for comparisonStatsKey in COMPARISON_FUNCTION_MAP:
-			currentLabel = QLabel(camel_case_to_capitalized(comparisonStatsKey) + ": N/A")
+			currentLabel = QLabel(CamelCaseToCapitalized(comparisonStatsKey) + ": N/A")
 			statsLayout.addWidget(currentLabel)
 			self.comparisonStatsLabels[comparisonStatsKey] = currentLabel
 
@@ -135,7 +135,7 @@ class ComparisonWindow(QWidget):
 		self.inputImageLabel.setPixmap(inputImagePixmap)
 
 		#upload generated skeleton, draw vectorized version
-		generatedSkeletonPixmap = draw_lines_on_pixmap(currentResults[currSkeletonKey][vectorKey][pointsKey], 
+		generatedSkeletonPixmap = DrawLinesOnPixmap(currentResults[currSkeletonKey][vectorKey][pointsKey], 
 													   currentResults[currSkeletonKey][vectorKey][linesKey],
 													   self.scaledWidth, self.scaledHeight)
 		self.generatedImageLabel.setPixmap(generatedSkeletonPixmap)
@@ -163,13 +163,14 @@ class ComparisonWindow(QWidget):
 		filePath = filePath.replace("\\", "/")
 		self.fileSelectLabel.setText(filePath)
 
-		uploadedImageArray = np.asarray(Image.open(filePath), dtype=np.float64)
+		uploadedImageArray = np.asarray(Image.open(filePath).convert("RGB"), dtype=np.float64)
 		uploadedImageArray = NormalizeImageArray(uploadedImageArray)
+		uploadedImageArray = ConvertToGrayScale(uploadedImageArray)
 
 		uploadedSkeleton = CallSkeletonize(uploadedImageArray, {})
 		self.uploadedLines, self.uploadedPoints, _ = VectorizeSkeleton(uploadedSkeleton)
 
-		uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
+		uploadedPixmap = DrawLinesOnPixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
 		self.uploadedImageLabel.setPixmap(uploadedPixmap)
 
 		#perform calculations
@@ -179,7 +180,7 @@ class ComparisonWindow(QWidget):
 				(self.uploadedLines, self.uploadedPoints)
 			)
 
-			self.comparisonStatsLabels[comparisonStatKey].setText(f"{camel_case_to_capitalized(comparisonStatKey)}: {result}")
+			self.comparisonStatsLabels[comparisonStatKey].setText(f"{CamelCaseToCapitalized(comparisonStatKey)}: {result}")
 
 		self.uploadedFile = True
 
@@ -190,11 +191,11 @@ class ComparisonWindow(QWidget):
 		self.currentlyOverlaying = not self.currentlyOverlaying
 
 		if not self.currentlyOverlaying:
-			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
+			uploadedPixmap = DrawLinesOnPixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight)
 			self.uploadedImageLabel.setPixmap(uploadedPixmap)
 		else:
-			uploadedPixmap = draw_lines_on_pixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight, line_color=QColor("green"))
-			uploadedPixmap = draw_lines_on_pixmap(self.currentResults[self.skeletonType][vectorKey][pointsKey], 
+			uploadedPixmap = DrawLinesOnPixmap(self.uploadedPoints, self.uploadedLines, self.scaledWidth, self.scaledHeight, line_color=QColor("green"))
+			uploadedPixmap = DrawLinesOnPixmap(self.currentResults[self.skeletonType][vectorKey][pointsKey], 
 												self.currentResults[self.skeletonType][vectorKey][linesKey],
 												self.scaledWidth, self.scaledHeight, line_color=QColor("blue"), pixmap=uploadedPixmap)
 			

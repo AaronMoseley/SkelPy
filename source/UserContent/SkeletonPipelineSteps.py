@@ -8,13 +8,27 @@ from skimage import feature
 """
 The function below is an example that can be used in a skeleton pipeline
 Functions also need to be defined in configs/PipelineSteps.json with a key string and list of any necessary parameters
-Once the function is complete, you must add the function (using the key string) to the STEP_FUNCTION_MAP in source/UserContent/FunctionMaps.py as shown in a comment
+For a full list of all possible parameters, look at configs/StepParameters.json.
+If you are creating a new step and require additional parameters, add a new entry in StepParameters.json in the same format
+Once the function is complete, you must add the function (using the key string) to the STEP_FUNCTION_MAP in source/UserContent/FunctionMaps.py as shown there
 """
-def ExamplePipelineFunction(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
-    #perform some processing on imgArray
 
-    #for the first step, imgArray is read from the provided image file and normalized to 0-1
-    #for any step after the first one, imgArray is exactly what is returned from the previous step
+def ExamplePipelineFunction(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    This is an example function for performing a step in a skeleton pipeline. This should perform an operation on the input image and return a modified version.
+
+    All pipeline functions should have the same structure as this.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function.
+        parameters (dict): The parameters related to this step in the pipeline. Each step has its own set of parameters that can be set with sliders in the main window. As mentioned in the documentation above, the parameters required for each step are set in configs/PipelineSteps.json and the full list of possible parameters is established in configs/StepParameters.json. You can reference any related parameters to a step in its function with the keys in StepParameters.json.
+        
+    Returns:
+        np.ndarray: The modified version of the image. If this is the last step in the skeletonization pipeline, it should return an array compatible with skimage.morphology.skeletonize.
+        Specifically, the shape of the image should be (H, W) and all non-zero values will be treated as a white pixel when performing skeletonization.
+    """
+
+    #perform some processing on imgArray
 
     return imgArray
 

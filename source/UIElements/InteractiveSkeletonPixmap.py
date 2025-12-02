@@ -4,7 +4,7 @@ from PySide6.QtGui import QMouseEvent, QColor
 
 import math
 
-from ..Helpers.HelperFunctions import draw_lines_on_pixmap, DistanceToLine
+from ..Helpers.HelperFunctions import DrawLinesOnPixmap, DistanceToLine
 
 class InteractiveSkeletonPixmap(QLabel):
     #line length, cluster length, line index, cluster index
@@ -57,7 +57,7 @@ class InteractiveSkeletonPixmap(QLabel):
 
         self.UpdateLines()
 
-    def LineToClump(self, line:int) -> int:
+    def LineToCluster(self, line:int) -> int:
         for i in range(len(self.clusters)):
             if line in self.clusters[i]:
                 return i
@@ -104,15 +104,6 @@ class InteractiveSkeletonPixmap(QLabel):
         self.UpdateLineData.emit(selectedLineLength, selectedClumpLength, self.selectedLineIndex, self.selectedClumpIndex)
 
     def mouseMoveEvent(self, event:QMouseEvent):
-        #x = event.x() / self.dimension
-        #y = 1 - ((event.y() - self.pos().y()) / self.dimension)
-        #y += 0.5
-        #y = event.y() / self.dimension
-
-        #print(f"{x} {y}")
-
-        #print(y)
-
         pos = event.pos()  # QPoint relative to the label
         pixmap = self.pixmap()
 
@@ -178,7 +169,7 @@ class InteractiveSkeletonPixmap(QLabel):
         if closestDist < self.maxSelectDistance:
             if closestLine != self.hoveredLineIndex:
                 self.hoveredLineIndex = closestLine
-                self.hoveredClumpIndex = self.LineToClump(closestLine)
+                self.hoveredClumpIndex = self.LineToCluster(closestLine)
 
                 self.UpdateLines()
         else:
@@ -205,5 +196,5 @@ class InteractiveSkeletonPixmap(QLabel):
 
     def UpdateLines(self) -> None:
         colorMap = self.GetColorMap()
-        pixmap = draw_lines_on_pixmap(self.points, self.lines, self.scaledWidth, self.scaledHeight, colorMap)
+        pixmap = DrawLinesOnPixmap(self.points, self.lines, self.scaledWidth, self.scaledHeight, colorMap)
         self.setPixmap(pixmap)

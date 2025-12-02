@@ -25,6 +25,25 @@ If you indicate the function is calculated in image space, HyPhy will scale it b
 """
 
 def RandomNumberPerImage(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> float:
+    """
+    This is an example function for calculating metrics for a skeleton. This should calculate something that will tell the user some information about the skeleton.
+
+    All metric calculation functions should have the same structure as this.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        float: This example function returns a float but others can return anything that wouldn't cause an error when input into the string constructor str().
+        As mentioned in the documentation at the top of this file, metric functions that are run per image should return a single value, ones that are called
+        for every line should return a list of values the same length as the lines list, and ones called per cluster should return a list of values the same
+        length as the clusters list.
+    """
+    
     return random.uniform(0, 1)
 
 def RandomNumberPerCluster(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[float]:
