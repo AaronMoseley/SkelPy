@@ -79,54 +79,103 @@ SkelPy also generates a set of CSV files representing the same information for e
 Below is the directory tree of example input and output files. This example uses the two default skeletonizations pipelines that are included in SkelPy: Sclerotia Primordia and Fungal Network.
 
 ├───Images
+
 │       ExampleImage_01.tif
+
 │       ExampleImage_02.tif
+
 │       ExampleImage_03.tif
+
 │
+
 ├───Skeletons
+
 │   │   ExampleImage_01_network.tif
+
 │   │   ExampleImage_01_sclerotiaPrimordia.tif
+
 │   │   ExampleImage_02_network.tif
+
 │   │   ExampleImage_02_sclerotiaPrimordia.tif
+
 │   │   ExampleImage_03_network.tif
+
 │   │   ExampleImage_03_sclerotiaPrimordia.tif
+
 │   │
+
 │   └───Calculations
+
 │       │   ExampleImage_01_calculations.json
+
 │       │   ExampleImage_02_calculations.json
+
 │       │   ExampleImage_03_calculations.json
+
 │       │
+
 │       ├───ExampleImage_01_skeleton_csvs
+
 │       │       fileInfo.csv
+
 │       │       network_clusters.csv
+
 │       │       network_lines.csv
+
 │       │       network_metadata.csv
+
 │       │       network_points.csv
+
 │       │       sclerotiaPrimordia_clusters.csv
+
 │       │       sclerotiaPrimordia_lines.csv
+
 │       │       sclerotiaPrimordia_metadata.csv
+
 │       │       sclerotiaPrimordia_points.csv
+
 │       │
+
 │       ├───ExampleImage_02_skeleton_csvs
+
 │       │       fileInfo.csv
+
 │       │       network_clusters.csv
+
 │       │       network_lines.csv
+
 │       │       network_metadata.csv
+
 │       │       network_points.csv
+
 │       │       sclerotiaPrimordia_clusters.csv
+
 │       │       sclerotiaPrimordia_lines.csv
+
 │       │       sclerotiaPrimordia_metadata.csv
+
 │       │       sclerotiaPrimordia_points.csv
+
 │       │
+
 │       └───ExampleImage_03_skeleton_csvs
+
 │               fileInfo.csv
+
 │               network_clusters.csv
+
 │               network_lines.csv
+
 │               network_metadata.csv
+
 │               network_points.csv
+
 │               sclerotiaPrimordia_clusters.csv
+
 │               sclerotiaPrimordia_lines.csv
+
 │               sclerotiaPrimordia_metadata.csv
+
 │               sclerotiaPrimordia_points.csv
 
 ### Skeleton Viewer
