@@ -2,7 +2,7 @@
 <br/>
 <div align="center">
 
-<h3 align="center">Skeletonization Tool</h3>
+<h3 align="center">SkelPy</h3>
 <p align="center">
 
 
@@ -24,7 +24,7 @@ The project was created with Python and PyQt.
 
 ## Getting Started
 
-If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a Mac or Linux system, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run HyPhy as it doesn't require you to download the code or manually install any packages. If you would still like to download the code or run HyPhy more manually, continue with the instructions below. Otherwise, you can skip them.
+If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a Mac or Linux system, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run SkelPy as it doesn't require you to download the code or manually install any packages. If you would still like to download the code or run SkelPy more manually, continue with the instructions below. Otherwise, you can skip them.
  
 ### Prerequisites
 
@@ -42,7 +42,7 @@ You must already have an environment set up to use this project. This is a requi
 
 ### Running the Program
 
-To use the program, make sure you have Python and all the program dependencies installed, then run the following command in your shell/command prompt while inside the HyPhy directory.
+To use the program, make sure you have Python and all the program dependencies installed, then run the following command in your shell/command prompt while inside the SkelPy directory.
 
 ```sh
 RunProgram.bat
