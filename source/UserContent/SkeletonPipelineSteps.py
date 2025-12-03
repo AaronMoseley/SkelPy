@@ -33,6 +33,18 @@ def ExamplePipelineFunction(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     return imgArray
 
 def ConvertToGrayScale(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    Converts the image to grayscale by taking the mean of all its channels if the image is not already grayscale.
+    The input array should be of the shape (H, W, C) or (H, W).
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function.
+        parameters (dict): This will be empty.
+        
+    Returns:
+        np.ndarray: The grayscale image in the shape (H, W).
+    """
+
     if imgArray.ndim > 2:
         if imgArray.shape[-1] == 4:
             imgArray = imgArray[:, :, :3]
@@ -42,6 +54,17 @@ def ConvertToGrayScale(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     return imgArray
 
 def NormalizeImage(imgArray:np.ndarray, parameters) -> np.ndarray:
+    """
+    Normalizes the image by subtracting its minimum value and dividing by the maximum of the modified array.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function.
+        parameters (dict): This will be empty.
+        
+    Returns:
+        np.ndarray: The normalized image.
+    """
+    
     maxValue = np.max(imgArray)
     minValue = np.min(imgArray)
     imgArray -= minValue
@@ -50,6 +73,20 @@ def NormalizeImage(imgArray:np.ndarray, parameters) -> np.ndarray:
     return imgArray
 
 def RadialThreshold(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    Thresholds the image based on a radial array.
+    Given the parameters "centerThreshold" and "edgeThreshold", a circle is drawn on an array that fades from one value at the center to another at the edge.
+    This is then used as a per-pixel threshold.
+    This is useful when the input images are darker or lighter at the center and require a different threshold value than objects at the edge.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a grayscale image of shape (H, W).
+        parameters (dict): Contains "centerThreshold" and "edgeThreshold" which are used as the values in the radial mask at the center and edge respectively.
+        
+    Returns:
+        np.ndarray: The thresholded image array.
+    """
+    
     thresholds = CreateRadialMask(imgArray.shape[1], imgArray.shape[0], parameters["centerThreshold"], parameters["edgeThreshold"])
 
     imgArray = np.asarray(imgArray < thresholds, dtype=np.float64)
@@ -57,45 +94,143 @@ def RadialThreshold(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
     return imgArray
 
 def CallRemoveSmallWhiteIslands(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    A wrapper function that removes any "white islands", or groups of ones, in the binary image that are too small.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a binary image of shape (H, W).
+        parameters (dict): Contains "minWhiteIslandSize" which is the number of pixels that must be in each group of ones for the group to be kept. All smaller groups will be set to 0.
+        
+    Returns:
+        np.ndarray: The image array with reduced islands.
+    """
+
     imgArray = RemoveSmallWhiteIslands(imgArray, parameters["minWhiteIslandSize"])
 
     return imgArray
 
 def CallRemoveStructurallyNoisyIslands(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
-    imgArray = RemoveStructurallyNoisyIslands(imgArray, max_avg_black_neighbors=parameters["noiseTolerance"])
+    """
+    A wrapper function that removes groups of ones that are too noisy. Noise is measured as the average number of black neighbors white pixels. Higher counts mean that the group is noisier.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a binary image of shape (H, W).
+        parameters (dict): Contains "noiseTolerance" which is the maximum allowed number of black neighbors, on average, for each group of white pixels. All groups with a higher value will be removed. Setting this to 8 will remove all white pixels and any higher values will cause issues.
+        
+    Returns:
+        np.ndarray: The image array with reduced islands.
+    """
+    
+    imgArray = RemoveStructurallyNoisyIslands(imgArray, maxAverageBlackNeighbors=parameters["noiseTolerance"])
     return imgArray
 
 def CallSmoothBinaryArray(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    A wrapper function that performs Gaussian Blur (https://en.wikipedia.org/wiki/Gaussian_blur) on the binary image. This smooths out the image and can make connections between lines that would become disconnected otherwise.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a binary image of shape (H, W).
+        parameters (dict): Contains "gaussianBlurSigma" which is given to skimage.ndimage.gaussian_filter. Please refer to their documentation for further explanation.
+        
+    Returns:
+        np.ndarray: The image array with reduced islands.
+    """
+    
     imgArray = GaussianBlur(imgArray, sigma=parameters["gaussianBlurSigma"])
     return imgArray
 
 def CallSkeletonize(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    A wrapper function that skeletonizes the input image using the Zhang-Suen algorithm (https://rosettacode.org/wiki/Zhang-Suen_thinning_algorithm). 
+    This calls the function skimage.morphology.skeletonize. Please refer to their documentation for further information.
+    This is automatically called at the end of every pipeline.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a binary image of shape (H, W).
+        parameters (dict): This will be empty.
+        
+    Returns:
+        np.ndarray: The skeletonized binary image.
+    """
+    
     imgArray = skeletonize(imgArray)
     return imgArray
 
 def CallAdjustContrast(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    A wrapper function that modifies the contrast of the input image.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a grayscale image of shape (H, W).
+        parameters (dict): Contains "contrastAdjustment" which is used as a contrast scale. Higher values will result in higher contrast in the output image.
+        
+    Returns:
+        np.ndarray: The image array with reduced islands.
+    """
+    
     imgAdjustedContrast = AdjustContrast(imgArray, parameters["contrastAdjustment"])
     return imgAdjustedContrast
 
 def CallEdgeDetection(imgArray:np.ndarray, parameters:dict) -> np.ndarray:
+    """
+    A wrapper function that calls an edge detection algorithm based on Canny Edge Detection (https://en.wikipedia.org/wiki/Canny_edge_detector).
+    After performing Canny Edge Detection, the algorithm finds pixels that are the correct color (dark but not too dark) and they pass the threshold if close enough
+    to an edge detected by the Canny algorithm.
+
+    Args:
+        imgArray (np.ndarry): The image produced by all the previous steps in the pipeline. If this is the first step in the pipeline, the image will be read with PIL.Image.open and converted to a float64 numpy array before being given to this function. This should be a grayscale image of shape (H, W).
+        parameters (dict): Contains "gaussianBlurSigma", "maxThreshold", "minThreshold", "searchDistance", and "edgeNeighborRatio".\n
+            -"gaussianBlurSigma" is used in Canny Edge Detection, please refer to the documentation for skimage.feature.canny for more information\n
+            -"maxThreshold" and "minThreshold" are used to determine what value a pixel must be to be kept. The local average for each pixel is calculated in a 10-pixel radius and each pixel must satisfy (minThreshold * localAverage) < pixelValue < (maxThreshold * localAverage)
+            -"searchDistance" is the Manhattan Distance from each pixel that is searched for pixels detected by Canny Edge Detection
+            -"edgeNeighborRatio" is the ratio of neighbors to each pixel within searchDistance that must have been detected by Canny Edge Detection for it to be kept
+        
+    Returns:
+        np.ndarray: The image array with reduced islands.
+    """
+    
     edges = feature.canny(imgArray, sigma=parameters["gaussianBlurSigma"])
     
     imgArray = ThresholdAndProximity(imgArray, edges, parameters["maxThreshold"], parameters["minThreshold"], parameters["searchDistance"], parameters["edgeNeighborRatio"])
     return imgArray
 
-def CountZeroNeighbors(binary_array, x, y):
-    neighbors = binary_array[x-1:x+2, y-1:y+2]
+def CountZeroNeighbors(binaryArray:np.ndarray, x:int, y:int) -> int:
+    """
+    Counts the number of pixels equal to zero that neighbor a given point.
+
+    Args:
+        binaryArray (np.ndarry): A binary array of shape (H, W).
+        x (int): The first index of the given point
+        y (int): The second index of the given point
+        
+    Returns:
+        int: The number of neighbors to the given pixel equal to zero.
+    """
+
+    neighbors = binaryArray[x-1:x+2, y-1:y+2]
     return 8 - np.sum(neighbors, dtype=np.int64)  # count black (0) pixels
 
-def RemoveStructurallyNoisyIslands(binary_array, max_avg_black_neighbors=4.0):
+def RemoveStructurallyNoisyIslands(binaryArray:np.ndarray, maxAverageBlackNeighbors:float=4.0) -> np.ndarray:
+    """
+    Sets any white islands to black when they are too structurally noisy.
+    Noise is defined by the average number of black neighbors for each group of white pixels.
+
+    Args:
+        binaryArray (np.ndarry): A binary array of shape (H, W).
+        maxAverageBlackNeighbors (float): The maximum allowable average number of black neighbors.
+        
+    Returns:
+        np.ndarray: The modified version of binaryArray without noisy islands.
+    """
+    
     # Label connected white regions
-    labeled_array, num_features = label(binary_array)
+    labeled_array, num_features = label(binaryArray)
 
     # Pad array to handle edges safely
-    padded_array = np.pad(binary_array, 1)
+    padded_array = np.pad(binaryArray, 1)
     padded_labels = np.pad(labeled_array, 1)
 
-    output = np.zeros_like(binary_array)
+    output = np.zeros_like(binaryArray)
 
     for label_id in range(1, num_features + 1):
         coords = np.argwhere(padded_labels == label_id)
@@ -107,32 +242,33 @@ def RemoveStructurallyNoisyIslands(binary_array, max_avg_black_neighbors=4.0):
 
         avg_black_neighbors = np.mean(black_neighbor_counts)
 
-        if avg_black_neighbors <= max_avg_black_neighbors:
+        if avg_black_neighbors <= maxAverageBlackNeighbors:
             # Keep coherent island
             for x, y in coords:
                 output[x - 1, y - 1] = 1  # remove padding offset
 
     return output
 
-def RemoveSmallWhiteIslands(binary_array:np.ndarray, min_size):
+def RemoveSmallWhiteIslands(binaryArray:np.ndarray, minIslandSize:int) -> np.ndarray:
     """
-    Remove white islands (connected components of 1s) with fewer than `min_size` pixels.
-    
-    Parameters:
-        binary_array (np.ndarray): 2D binary NumPy array (0s and 1s).
-        min_size (int): Minimum number of pixels a white island must have to be kept.
+    Removes any white islands from the image that are too small.
+
+    Args:
+        binaryArray (np.ndarry): A binary array of shape (H, W).
+        minIslandSize (int): The number of pixels that must be included in each white island.
         
     Returns:
-        np.ndarray: A new binary array with small white islands removed.
+        np.ndarray: The modified version of binaryArray without small islands.
     """
+
     # Label connected components
-    labeled_array, num_features = label(binary_array)
+    labeled_array, _ = label(binaryArray)
     
     # Count the number of pixels in each component (ignore label 0 which is background)
     component_sizes = np.bincount(labeled_array.ravel())
     
     # Create a mask of components to keep
-    keep_labels = np.where(component_sizes >= min_size)[0]
+    keep_labels = np.where(component_sizes >= minIslandSize)[0]
     
     # Remove background (label 0) from the keep list
     keep_labels = keep_labels[keep_labels != 0]
@@ -142,7 +278,20 @@ def RemoveSmallWhiteIslands(binary_array:np.ndarray, min_size):
     
     return cleaned_array
 
-def CreateRadialMask(width, height, center_value, edge_value):
+def CreateRadialMask(width:int, height:int, centerValue:float, edgeValue:float) -> np.ndarray:
+    """
+    Creates a grayscale image of a specified size that has centerValue at the center and fades to edgeValue at the edges.
+
+    Args:
+        width (int): The width of the output array.
+        height (int): The height of the output array.
+        centerValue (float): The value at the center of the output array.
+        edgeValue (float): The value at the edge of the output array.
+        
+    Returns:
+        np.ndarray: A radial image fading from one value to another.
+    """
+    
     # Create a grid of (x, y) coordinates
     y, x = np.indices((height, width))
     
@@ -158,27 +307,28 @@ def CreateRadialMask(width, height, center_value, edge_value):
     norm_distances = distances / max_distance
     
     # Linearly interpolate between center_value and edge_value
-    result = center_value + (edge_value - center_value) * norm_distances
+    result = centerValue + (edgeValue - centerValue) * norm_distances
     
     return result
 
-def GaussianBlur(binary_array, sigma=1.0):
+def GaussianBlur(binaryArray:np.ndarray, sigma:float=1.0) -> np.ndarray:
     """
-    Smooths white structures in a binary numpy array to have smoother edges.
+    Performs Gaussian Blur on a binary array to smooth it. 
+    This uses scipy.ndimage.gaussian_filter. Please refer to their documentation for more details.
 
-    Parameters:
-    - binary_array: np.ndarray, binary input array (0s and 1s)
-    - sigma: float, standard deviation for Gaussian blur
-    - morph_radius: int, radius for morphological operations
-
+    Args:
+        binaryArray (np.ndarray): The original binary array of shape (H, W).
+        sigma (float): The sigma value used in the Gaussian blur operation.
+        
     Returns:
-    - smoothed_binary: np.ndarray, binary array with smoothed edges
+        np.ndarray: A smoothed binary image array of the same shape as binaryArray.
     """
+
     # Ensure the array is binary
-    binary_array = (binary_array > 0).astype(np.uint8)
+    binaryArray = (binaryArray > 0).astype(np.uint8)
 
     # Apply Gaussian filter to blur the edges
-    blurred = gaussian_filter(binary_array.astype(float), sigma=sigma)
+    blurred = gaussian_filter(binaryArray.astype(float), sigma=sigma)
 
     # Threshold to convert back to binary
     threshold = threshold_otsu(blurred)
@@ -189,18 +339,16 @@ def GaussianBlur(binary_array, sigma=1.0):
 
 def AdjustContrast(image: np.ndarray, contrast: float) -> np.ndarray:
     """
-    Adjust the contrast of a normalized 2D grayscale image.
-    
-    Parameters:
-        image (np.ndarray): 2D numpy array with values in [0, 1].
-        contrast (float): Contrast adjustment factor.
-                          1.0 = no change,
-                          >1.0 = increase contrast,
-                          <1.0 = decrease contrast.
-                          
+    Adjusts the contrast of a grayscale image by scaling values towards the extrema (0, 1) and the middle (0.5).
+
+    Args:
+        image (np.ndarray): The original grayscale image array of shape (H, W). This must be in the range 0-1.
+        contrast (float): How much the values are scaled towards the 3 target points.
+        
     Returns:
-        np.ndarray: Contrast-adjusted image, still in [0, 1].
+        np.ndarray: A modified version of image with different contrast.
     """
+
     if not (0 <= image.min() and image.max() <= 1):
         raise ValueError("Input image must be normalized to range [0, 1].")
     
@@ -210,40 +358,47 @@ def AdjustContrast(image: np.ndarray, contrast: float) -> np.ndarray:
     # Clip values to ensure they're still in [0, 1]
     return np.clip(adjusted, 0, 1)
 
-def ThresholdAndProximity(image, edgeDetection, maxThreshold, minThreshold, distance, ratioThreshold):
+def ThresholdAndProximity(image:np.ndarray, cannyResults:np.ndarray, maxThreshold:float, minThreshold:float, edgeSearchDistance:int, edgeNeighborRatioThreshold:float) -> np.ndarray:
     """
-    Returns a binary array where each element is 1 if:
-    - the corresponding element in array1 is less than the threshold, and
-    - there is at least one element equal to 1 in array2 within the specified distance.
+    Thresholds an input image given the results of Canny Edge Detection and a desired color.\n
 
-    Parameters:
-    - array1: 2D numpy array
-    - array2: 2D numpy array of the same shape as array1
-    - threshold: numeric value
-    - distance: int, neighborhood radius to consider
+    This algorithm first finds the average value of each pixel in a 10-pixel radius.
+    Pixels are only kept white if they are in the range ((minThreshold * localAverage), (maxThreshold * localAverage)).
+    This keeps pixels that are darker than some in their locality, but not too dark.\n
 
+    Given the results of Canny Edge Detection, the ratio (Canny-Edge-Detected neighbors) / (total number of neighbors) is calculated for each pixel.
+    Pixels are only kept if that ratio is high enough.
+    This is performed because Canny Edge Detection will detect an outline around an object, but not its skeleton.
+
+    Args:
+        image (np.ndarray): The original grayscale image array of shape (H, W). This must be in the range 0-1.
+        cannyResults (np.ndarray): The results from Canny Edge Detection.
+        maxThreshold (float): Multiplied by the local average for each pixel to determine if its value is in the correct range.
+        minThreshold (float): Multiplied by the local average for each pixel to determine if its value is in the correct range.
+        edgeSearchDistance (int): The distance used to calculate the ratio of edge-detected neighbors to total neighbors.
+        edgeNeighborRatioThreshold (float): The minimum ratio of edge-detected neighbors to total neighbors for a pixel to be kept white.
+        
     Returns:
-    - result: 2D numpy array of 0s and 1s
+        np.ndarray: A thresholded version of image based on the Canny Edge Detection results. This is a binary array of shape (H, W).
     """
 
-    if image.shape != edgeDetection.shape:
+    if image.shape != cannyResults.shape:
         raise ValueError("Input arrays must have the same shape.")
 
-
+    #gets the average value with a 10 pixel radius around each pixel
     smoothedImage = uniform_filter(image, size=10, mode="constant")
+    #thresholds pixels so they have to be above the (minThreshold * average) and below the (maxThreshold * average) in their local area
     condition1 = np.logical_and(image < smoothedImage * maxThreshold, image > smoothedImage * minThreshold)
 
-    # Condition 1: array1 < threshold
-    #condition1 = np.logical_and(image < maxThreshold, image > minThreshold)
+    #smooths out the canny edge detection (which outlines the skeleton) so that the pixels around it know they are close to an edge, just not on which side
+    size = 2 * edgeSearchDistance + 1
+    cannyResults = np.asarray(cannyResults, dtype=np.float64)
+    local_ratio = uniform_filter(cannyResults, size=size, mode='constant')
 
-    size = 2 * distance + 1
-    edgeDetection = np.asarray(edgeDetection, dtype=np.float64)
-    local_ratio = uniform_filter(edgeDetection, size=size, mode='constant')
+    #finds all pixels that are close to the canny-edge-detected outline
+    condition2 = local_ratio >= edgeNeighborRatioThreshold
 
-    # Condition 2: ratio of 1s in neighborhood >= ratio_threshold
-    condition2 = local_ratio >= ratioThreshold
-
-    # Final result: element-wise AND of both conditions
+    #returns all pixels that are dark but not too dark and are close to a canny-edge detected outline
     result = np.logical_and(condition1, condition2).astype(np.float64)
 
     return result

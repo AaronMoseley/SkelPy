@@ -62,7 +62,21 @@ def RandomNumberPerLine(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines
 
     return result
 
-def Sinuosity(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> float:
+def Sinuosity(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[float]:
+    """
+    Calculates the sinuosity of each line in the skeleton. The sinuosity is calculated as (total polyline length) / (distance from start to end point).
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        list[float]: The sinuosity of each line in the skeleton.
+    """
+    
     result = []
 
     for line in lines:
@@ -81,6 +95,20 @@ def Sinuosity(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list
 
 #fractal dimension
 def FractalDimension(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> float:
+    """
+    Calculates the fractal dimension of the skeleton using the box-counting method (https://en.wikipedia.org/wiki/Box_counting).
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        float: The fractal dimension of the skeleton.
+    """
+    
     # Ensure the array is binary
     array = np.array(skeleton, dtype=bool)
 
@@ -115,19 +143,75 @@ def FractalDimension(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:li
 
 #number of lines in image
 def LineCountInImage(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> int:
+    """
+    Calculates the number of lines in the skeleton.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        int: The number of lines in the skeleton.
+    """
+    
     return len(lines)
 
 #number of clusters in image
 def ClusterCountInImage(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> int:
+    """
+    Calculates the number of clusters in the skeleton.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        int: The number of clusters in the skeleton.
+    """
+    
     return len(clusters)
 
 #number of lines in each cluster
 def LineCountInCluster(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[int]:
+    """
+    Calculates the number of lines in each cluster.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        list[int]: The number of lines in each cluster.
+    """
+    
     result = [len(cluster) for cluster in clusters]
     return result
 
 #average length of lines in cluster
 def AverageLineLengthInCluster(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[float]:
+    """
+    Calculates the average length of the lines in each cluster.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        list[int]: The average length of the lines in each cluster.
+    """
+    
     result = []
 
     for currentLines in clusters:
@@ -151,6 +235,18 @@ def AverageLineLengthInCluster(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray
     return result
 
 def CountConnectedPixels(grid: np.ndarray, start_row: int, start_col: int) -> int:
+    """
+    Uses graph-searching to count the number of white pixels connected to the pixel at index (start_row, start_col). If the input pixel is black, this returns 0.
+
+    Args:
+        grid (np.ndarray): The binary 2D array that is used when searching for neighbors. The shape of this array is (H, W).
+        start_row (int): The first index for the input pixel.
+        start_col (int): The second index for the input pixel.
+        
+    Returns:
+        int: The number of white pixels connected to the input pixel.
+    """
+    
     if grid[start_row, start_col] != 1.0:
         return 0
 
@@ -179,6 +275,18 @@ def CountConnectedPixels(grid: np.ndarray, start_row: int, start_col: int) -> in
     return count
 
 def DrawLine(startPosition:tuple[float, float], direction:tuple[float, float], dimension:tuple[int, int]) -> np.ndarray:
+    """
+    This draws a line of ones in a new array of zeros from one end of the image to the other.
+
+    Args:
+        startPosition (tuple[float, float]): The starting position in the range 0-1 for drawing the line. This is not an endpoint or a midpoint, just a guaranteed point on the line.
+        direction (tuple[float, float]): The direction vector for the line. After drawing in one direction, this is reversed and used to draw in the other direction.
+        dimension (tuple[int, int]): The dimension of the array to be generated.
+        
+    Returns:
+        np.ndarray: The new binary array with a line of ones drawn.
+    """
+    
     result = np.zeros(dimension)
 
     rows, cols = dimension
@@ -204,21 +312,49 @@ def DrawLine(startPosition:tuple[float, float], direction:tuple[float, float], d
 
     return result
 
-def CalculateLineWidth(thresholdedImage:np.ndarray, direction:tuple[float, float], startingPoint:tuple[float, float]) -> float:
+def CalculateLineWidth(thresholdedImage:np.ndarray, direction:tuple[float, float], lineMidpoint:tuple[float, float]) -> float:
+    """
+    Calculates the width of a line at its midpoint given the midpoint and the image before skeletonization.
+    A line is drawn orthogonal to the line being considered and then ANDed with the image before skeletonization.
+    The width is calculated using the number of points in this ANDed image connected to the midpoint.
+
+    Args:
+        thresholdedImage (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        direction (tuple[float, float]): The direction perpendicular to the line being considered.
+        lineMidpoint (tuple[float, float]): The midpoint of the line being considered, represented as XY coordinates in the range 0-1.
+        
+    Returns:
+        float: The width of the line relative to the size of the image.
+    """
+
     #draw line along direction
-    lineDrawn = DrawLine(startingPoint, direction, thresholdedImage.shape)
+    lineDrawn = DrawLine(lineMidpoint, direction, thresholdedImage.shape)
 
     #AND thresholded image and the line
     andImage = np.logical_and(thresholdedImage > 0.5, lineDrawn > 0.5).astype(np.float64)
 
     #BFS to get the number of white pixels connected to starting point
-    width = CountConnectedPixels(andImage, int(startingPoint[1] * thresholdedImage.shape[0]), int(startingPoint[0] * thresholdedImage.shape[1]))
+    width = CountConnectedPixels(andImage, int(lineMidpoint[1] * thresholdedImage.shape[0]), int(lineMidpoint[0] * thresholdedImage.shape[1]))
     
     width /= max(thresholdedImage.shape[0], thresholdedImage.shape[1])
 
     return width
 
 def CalculateWidthAtLineCenter(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> list[float]:
+    """
+    Calculates the width of each line, relative to the size of the image, at its midpoint.
+
+    Args:
+        skeleton (np.ndarry): The skeleton image, represented as a 2D binary array in the shape (H, W).
+        imgBeforeSkeleton (np.ndarry): The image immediately before skeletonization in the pipeline. This should be a 2D binary array in the shape (H, W).
+        lines (list[list[int]]): The list of lines in this skeleton, each represented as a list of indices into the points list.
+        points (list[tuple[float, float]]): The list of points in this skeleton, each represented as a tuple of XY coordinates in the range 0-1.
+        clusters (list[list[int]]): The list of connected polyline clusters in this skeleton, each represented as a list of indices into the lines list.
+        
+    Returns:
+        list[int]: The widths of all lines at their midpoints.
+    """
+    
     result = []
     
     #loop through each line
