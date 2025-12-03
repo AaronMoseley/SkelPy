@@ -21,7 +21,7 @@ PIPELINE_STEP_FUNCTION_MAP = {
 }
 
 #calculates metadata about each skeleton
-METRIC_FUNCTION_MAP = {
+METADATA_FUNCTION_MAP = {
     #below are example entries into this map that should be the basis for including your own functions
     #more information about the function is included in source/UserContent/MetricFunctions.py
 

@@ -4,7 +4,7 @@ from PIL import Image
 
 from .VectorizeSkeleton import VectorizeSkeleton
 from .HelperFunctions import skeletonKey, vectorKey, pointsKey, linesKey, clusterKey, functionKey
-from ..UserContent.FunctionMaps import PIPELINE_STEP_FUNCTION_MAP, METRIC_FUNCTION_MAP
+from ..UserContent.FunctionMaps import PIPELINE_STEP_FUNCTION_MAP, METADATA_FUNCTION_MAP
 
 def GenerateSkeleton(directory:str, fileName:str, parameters:list[dict], steps:list[str], pipelineSteps:dict) -> dict:
     """
@@ -49,8 +49,8 @@ def GenerateSkeleton(directory:str, fileName:str, parameters:list[dict], steps:l
 
     result[vectorKey] = vectors
 
-    for key in METRIC_FUNCTION_MAP:
-        result[key] = METRIC_FUNCTION_MAP[key][functionKey](skeletonImg, imgArray, lines, points, clusters)
+    for key in METADATA_FUNCTION_MAP:
+        result[key] = METADATA_FUNCTION_MAP[key][functionKey](skeletonImg, imgArray, lines, points, clusters)
         
     print(f"Created skeleton for {fileName}")
 

@@ -10,7 +10,7 @@ from functools import partial
 from ..Helpers.HelperFunctions import CamelCaseToCapitalized, ArrayToPixmap, originalImageKey, vectorKey, pointsKey, linesKey, clusterKey, functionTypeKey, imageTypeKey, clusterTypeKey, lineTypeKey
 from ..UIElements.InteractiveSkeletonPixmap import InteractiveSkeletonPixmap
 from ..UIElements.CustomTextEdit import CustomTextEdit
-from ..UserContent.FunctionMaps import METRIC_FUNCTION_MAP
+from ..UserContent.FunctionMaps import METADATA_FUNCTION_MAP
 
 class SkeletonViewer(QWidget):
 	BackButtonPressed = Signal()
@@ -112,7 +112,7 @@ class SkeletonViewer(QWidget):
 
 		self.calculationStatLabels = OrderedDict()
 
-		for key in METRIC_FUNCTION_MAP:
+		for key in METADATA_FUNCTION_MAP:
 			title = CamelCaseToCapitalized(key)
 			newLabel = QLabel(f"{title}: ")
 			self.calculationStatLabels[key] = newLabel
@@ -244,12 +244,12 @@ class SkeletonViewer(QWidget):
 			self.clumpLengthLabel.setText(self.clumpLengthPrefix + "N/A")
 
 			for statsLabelKey in self.calculationStatLabels:
-				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
+				if METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
 					continue
 
 				title = CamelCaseToCapitalized(statsLabelKey)
 
-				subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
+				subtitle = f"(per {METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
 				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: N/A")
 		else:
@@ -257,20 +257,20 @@ class SkeletonViewer(QWidget):
 			self.clumpLengthLabel.setText(self.clumpLengthPrefix + str(clumpLength * imageScale) + " " + self.unitsLineEdit.text())
 
 			for statsLabelKey in self.calculationStatLabels:
-				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
+				if METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
 					continue
 
 				title = CamelCaseToCapitalized(statsLabelKey)
 
-				subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
+				subtitle = f"(per {METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
-				if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == clusterTypeKey:
+				if METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey] == clusterTypeKey:
 					value = self.currentResults[self.currentSkeletonKey][statsLabelKey][clumpIndex]
-				elif METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == lineTypeKey:
+				elif METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey] == lineTypeKey:
 					value = self.currentResults[self.currentSkeletonKey][statsLabelKey][lineIndex]
 
 				suffix = ""
-				if METRIC_FUNCTION_MAP[statsLabelKey]["inImageSpace"]:
+				if METADATA_FUNCTION_MAP[statsLabelKey]["inImageSpace"]:
 					value *= imageScale
 					suffix = self.unitsLineEdit.text()
 
@@ -304,9 +304,9 @@ class SkeletonViewer(QWidget):
 		for statsLabelKey in self.calculationStatLabels:
 			title = CamelCaseToCapitalized(statsLabelKey)
 
-			subtitle = f"(per {METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
+			subtitle = f"(per {METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey]})"
 
-			if METRIC_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
+			if METADATA_FUNCTION_MAP[statsLabelKey][functionTypeKey] == imageTypeKey:
 				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: {self.currentResults[currSkeletonKey][statsLabelKey]}")
 			else:
 				self.calculationStatLabels[statsLabelKey].setText(f"{title} {subtitle}: N/A")
