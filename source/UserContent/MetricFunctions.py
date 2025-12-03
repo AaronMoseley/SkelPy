@@ -21,7 +21,7 @@ When a function is called per line, it should return a list of numbers the same 
 Once a function is complete, it should be included in METRIC_FUNCTION_MAP in source/UserContent/FunctionMaps.py
 It needs a key string in camel case (the key is formatted and used as the display name), an indicator of the type (per image, per cluster, or per line)
 and a boolean as to whether it's calculated in image space
-If you indicate the function is calculated in image space, HyPhy will scale it based on the image dimensions
+If you indicate the function is calculated in image space, SkelPy will scale it based on the image dimensions
 """
 
 def RandomNumberPerImage(skeleton:np.ndarray, imgBeforeSkeleton:np.ndarray, lines:list[list[int]], points:list[tuple[float, float]], clusters:list[list[int]]) -> float:
