@@ -442,6 +442,8 @@ class ImageOverview(QWidget):
 		calculations = json.load(calculationFile)
 		calculationFile.close()
 
+		print(calculations)
+
 		return calculations
 
 	def ToggleOverlay(self, currSkeletonKey:str) -> None:
@@ -507,6 +509,8 @@ class ImageOverview(QWidget):
 
 		imageFileName = self.currentFileList[index]
 
+		print("Loading: " + imageFileName)
+
 		originalImage = Image.open(os.path.join(self.defaultInputDirectory, imageFileName))
 		originalImageArray = np.asarray(originalImage, dtype=np.float64).copy()
 
@@ -553,8 +557,12 @@ class ImageOverview(QWidget):
 
 		missingSkeleton = False
 
+		print("Retrieved calculations, generating skeleton images")
+
 		for currSkeletonKey in self.skeletonPipelines:
 			if currSkeletonKey not in calculations:
+				print(currSkeletonKey + " not in calculations, setting to black")
+
 				skeletonPixmap = QPixmap(self.scaledWidth, self.scaledHeight)
 				skeletonPixmap.fill(QColor("black"))
 				self.currentImageHasData = False
@@ -562,6 +570,7 @@ class ImageOverview(QWidget):
 
 				ShowNotification(f"Missing generated skeleton: {CamelCaseToCapitalized(currSkeletonKey)}.\nPlease regenerate skeletons for this image.")
 			else:
+				print("Drawing skeleton for pipeline: " + currSkeletonKey)
 				skeletonPixmap = DrawLinesOnPixmap(calculations[currSkeletonKey][vectorKey][pointsKey], calculations[currSkeletonKey][vectorKey][linesKey], self.scaledWidth, self.scaledHeight)
 
 			self.skeletonDisplayRegion.SetPixmap(currSkeletonKey, skeletonPixmap)
