@@ -69,6 +69,55 @@ In this section, you can edit the names of any skeletonization pipeline with the
 
 If you would like to create a skeletonization pipeline from scratch, click "Add Skeletonization Pipeline" at the bottom and it will create a new one for you. This pipeline will only include the skeletonization step, so you would need to provide everything else.
 
+### File Outputs
+
+After your set of skeletonization pipelines has completed, SkelPy will generate a skeletonized image of each input file, per each pipeline. 
+For each input image, it will also generate a JSON file with any relevant data for that image.
+This includes any metadata calculated about the image for each pipeline and the vectorized versions of the skeletons, represented as points (tuples of XY coordinates in the range 0-1), lines (lists of indices into the list of points), and connected clusters of lines (lists of indices into the list of lines).
+SkelPy also generates a set of CSV files representing the same information for each input image. These are placed in a separate directory for each input file. The CSV files are never referenced in the program and are provided to the user for convenience. 
+
+Below is the directory tree of example input and output files for a single input image. This example uses the two default skeletonizations pipelines that are included in SkelPy: Sclerotia Primordia and Fungal Network.
+
+├───Images
+
+│       ExampleImage_01.tif
+
+│
+
+├───Skeletons
+
+│   │   ExampleImage_01_network.tif
+
+│   │   ExampleImage_01_sclerotiaPrimordia.tif
+
+│   │
+
+│   └───Calculations
+
+│       │   ExampleImage_01_calculations.json
+
+│       │
+
+│       ├───ExampleImage_01_skeleton_csvs
+
+│       │       fileInfo.csv
+
+│       │       network_clusters.csv
+
+│       │       network_lines.csv
+
+│       │       network_metadata.csv
+
+│       │       network_points.csv
+
+│       │       sclerotiaPrimordia_clusters.csv
+
+│       │       sclerotiaPrimordia_lines.csv
+
+│       │       sclerotiaPrimordia_metadata.csv
+
+│       │       sclerotiaPrimordia_points.csv
+
 ### Skeleton Viewer
 
 In the skeleton viewer, you can browse the skeletonized version of your image. Clicking on a polyline will select it in purple and the cluster it belongs to in red. On the right side of the screen, you can see any metadata calculated about the skeleton, some of which is specific to the selected line and line cluster. At the top, you can view the length of the selected line and the sum of the lengths of all the lines in the cluster.
