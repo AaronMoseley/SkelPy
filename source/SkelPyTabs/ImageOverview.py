@@ -432,8 +432,10 @@ class ImageOverview(QWidget):
 
 	def GetCurrentCalculations(self) -> dict:
 		calculationFilePath = self.GetCurrentCalculationsFile()
+		print(calculationFilePath)
 
 		if not os.path.exists(calculationFilePath):
+			print("Calculations file path does not exist")
 			return None
 
 		calculationFile = open(calculationFilePath, "r")
