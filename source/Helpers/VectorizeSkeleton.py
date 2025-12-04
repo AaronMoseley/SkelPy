@@ -1,22 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import math
 
 from collections import defaultdict, Counter, deque
 
-from .HelperFunctions import DistanceToLine, TupleDistance
-
 def GetInitialLines(skeleton:np.ndarray) -> tuple[list, list]:
-    """
-    Uses breadth-first-search to detect connections between points and lines on a skeletonized binary image array. 
-    The resulting list of points will contain every white pixel in the input array. This data is simplified in other functions.
-
-    Args:
-        skeleton (np.ndarray): The skeletonized image array. The shape of this array is (H, W) and all values are 0 or 1.
-
-    Returns:
-        tuple[list, list]: A list of points (tuples of XY coordinates) and a list of lines (each a list of indices into the list of points).
-    """
-
     #create stack
     stack = []
 
@@ -112,18 +100,6 @@ def GetInitialLines(skeleton:np.ndarray) -> tuple[list, list]:
     return lines, points
 
 def RemoveShortLines(lines:list[list[int]], minLength:int) -> list[list[int]]:
-    """
-    Deletes any lines with fewer than minLength pixels. 
-    At this point in vectorization, all pixels are represented as individual points, meaning the length of each line can be determined by the number of points it contains.
-
-    Args:
-        lines (list[list[int]]): A list of lines, each represented as a list of point indices.
-        minLength (int): The minimum number of points a line is required to have to be kept.
-
-    Returns:
-        list[list[int]]: The reduced list of lines in the same format as the input parameter.
-    """
-
     index = 0
     while index < len(lines):
         if len(lines[index]) < minLength:
@@ -134,19 +110,30 @@ def RemoveShortLines(lines:list[list[int]], minLength:int) -> list[list[int]]:
 
     return lines
 
+def DistanceFromPointToLine(point:tuple[int, int], start:tuple[int, int], end:tuple[int, int]):
+    """Calculate the perpendicular distance from a point to a line segment."""
+    x0, y0 = point
+    x1, y1 = start
+    x2, y2 = end
+
+    if (x1, y1) == (x2, y2):
+        return math.hypot(x0 - x1, y0 - y1)
+
+    num = abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2*y1 - y2*x1)
+    den = math.hypot(y2 - y1, x2 - x1)
+    return num / den
+
 def RDP(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list[int]:
-    """
-    Simplifies a polyline using the Ramer-Douglas-Peucker algorithm (https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm).
+    """Simplify the polyline using the RDP algorithm.
 
     Args:
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        polyline (list[int]): An ordered list of indices into points.
+        points: List of (x, y) tuples.
+        polyline: List of indices into `points` representing the polyline.
         epsilon: Distance threshold for simplification.
 
     Returns:
-        list[int]: A simplified version of the polyline, represented as a list of indices into points.
+        A simplified polyline as a list of indices into `points`.
     """
-
     def rdp_recursive(start_idx, end_idx):
         max_dist = 0.0
         index = None
@@ -155,7 +142,7 @@ def RDP(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list
         end_point = points[polyline[end_idx]]
 
         for i in range(start_idx + 1, end_idx):
-            dist = DistanceToLine(points[polyline[i]], start_point, end_point)
+            dist = DistanceFromPointToLine(points[polyline[i]], start_point, end_point)
             if dist > max_dist:
                 max_dist = dist
                 index = i
@@ -173,62 +160,29 @@ def RDP(points:list[tuple[int, int]], polyline:list[int], epsilon:float) -> list
 
     return rdp_recursive(0, len(polyline) - 1)
 
-def SimplifyLines(lines:list[list[int]], points:list[tuple[int, int]], epsilon:float) -> list[list[int]]:
-    """
-    A wrapper function that calls the RDP algorithm on all polylines it is given.
-
-    Args:
-        lines (list[list[int]]): A list of lines, each represented as a list of indices into points.
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        epsilon: Distance threshold for simplification.
-
-    Returns:
-        list[list[int]]: The modified version of lines.
-    """
-
+def SimplifyLines(lines:list[list[int]], points:list[tuple[int, int]], maxDist:float) -> tuple[list, list]:
     for i in range(len(lines)):
-        lines[i] = RDP(points, lines[i], epsilon)
+        lines[i] = RDP(points, lines[i], maxDist)
 
-    return lines
+    return lines, points
 
-def RemoveUnusedPoints(points:list[tuple[int, int]], lines:list[list[int]]) -> tuple[list, list]:
-    """
-    Detects any points that are not included in a polyline and deletes them from the list of points.
-    All polylines are updated to include the new indices of their points.
+def RemoveUnusedPoints(points, lines):
+    # Step 1: Find all used point indices
+    used_indices = set(index for line in lines for index in line)
 
-    Args:
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        lines (list[list[int]]): A list of lines, each represented as a list of indices into points.
+    # Step 2: Create a mapping from old index to new index
+    index_mapping = {}
+    new_points = []
+    for new_idx, old_idx in enumerate(sorted(used_indices)):
+        index_mapping[old_idx] = new_idx
+        new_points.append(points[old_idx])
 
-    Returns:
-        tuple[list, list]: The modified versions of lines and points respectively.
-    """
+    # Step 3: Update lines to use new indices
+    new_lines = [[index_mapping[idx] for idx in line] for line in lines]
 
-    usedLines = set(index for line in lines for index in line)
-
-    indexMapping = {}
-    newPoints = []
-    for new_idx, old_idx in enumerate(sorted(usedLines)):
-        indexMapping[old_idx] = new_idx
-        newPoints.append(points[old_idx])
-
-    newLines = [[indexMapping[idx] for idx in line] for line in lines]
-
-    return newLines, newPoints
+    return new_lines, new_points
 
 def NormalizePoints(points:list[tuple[int, int]], width:int, height:int) -> list[tuple[float, float]]:
-    """
-    Normalizes all point coordinates to floats in the range 0-1. All point coordinates are divided by the maximum of the width and height.
-
-    Args:
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        width (int): The width of the image in pixels.
-        height (int): The height of the image in pixels.
-
-    Returns:
-        list[tuple[float, float]]: The normalized list of point coordinates.
-    """
-    
     divisor = max(width, height)
     
     newPoints = []
@@ -238,18 +192,9 @@ def NormalizePoints(points:list[tuple[int, int]], width:int, height:int) -> list
 
     return newPoints
 
-def MergeNearbyPoints(points: list[tuple[float, float]], polylines: list[list[int]], maxDistance: float) -> tuple[list, list]:
-    """
-    Merges all points that close enough to each other. When points are merged, the lines are edited to reflect the new indices.
-
-    Args:
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        polylines (list[list[int]]): A list of lines, each represented as a list of indices into points.
-        maxDistance (float): The maximum distance where points can be merged into each other.
-
-    Returns:
-        tuple[list, list]: The modified versions of lines and points respectively.
-    """
+def MergeNearbyPoints(points: list[tuple[float, float]], polylines: list[list[int]], max_distance: float):
+    def distance(p1, p2):
+        return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
 
     # Union-Find structure to group nearby points
     parent = list(range(len(points)))
@@ -268,7 +213,7 @@ def MergeNearbyPoints(points: list[tuple[float, float]], polylines: list[list[in
     # Merge nearby points
     for i in range(len(points)):
         for j in range(i + 1, len(points)):
-            if TupleDistance(points[i], points[j]) <= maxDistance:
+            if distance(points[i], points[j]) <= max_distance:
                 union(i, j)
 
     # Group indices by root
@@ -278,34 +223,24 @@ def MergeNearbyPoints(points: list[tuple[float, float]], polylines: list[list[in
         clusters.setdefault(root, []).append(idx)
 
     # Compute new merged points
-    newPoints = []
+    new_points = []
     index_mapping = {}  # old_index -> new_index
     for new_idx, cluster in enumerate(clusters.values()):
         x_avg = sum(points[i][0] for i in cluster) / len(cluster)
         y_avg = sum(points[i][1] for i in cluster) / len(cluster)
-        newPoints.append((x_avg, y_avg))
+        new_points.append((x_avg, y_avg))
         for old_idx in cluster:
             index_mapping[old_idx] = new_idx
 
     # Update polylines with new point indices
-    newPolylines = [
+    new_polylines = [
         [index_mapping[idx] for idx in polyline]
         for polyline in polylines
     ]
 
-    return newPolylines, newPoints
+    return new_polylines, new_points
 
 def MergePolylinesAtEndpoints(polylines: list[list[int]]) -> list[list[int]]:
-    """
-    Merges all polylines that share endpoints when the endpoint is only contained in two polylines.
-
-    Args:
-        polylines (list[list[int]]): A list of lines, each represented as a list of indices into points.
-
-    Returns:
-        list[list[int]]: The modified version of polylines.
-    """
-
     # Count total occurrences of each point across all polylines
     point_usage = Counter(pt for poly in polylines for pt in poly)
     
@@ -369,17 +304,7 @@ def MergePolylinesAtEndpoints(polylines: list[list[int]]) -> list[list[int]]:
 
     return result
 
-def GetClusters(lines:list[list[int]]) -> list[list[int]]:
-    """
-    Detects all lines that are connected to each other in cluster groups.
-
-    Args:
-        lines (list[list[int]]): A list of lines, each represented as a list of indices into points.
-
-    Returns:
-        list[list[int]]: The list of clusters, each represented as a list of indices into the lines list.
-    """
-
+def GetClusters(lines) -> list[list[int]]:
     # Step 1: Build point-to-polyline index
     point_to_polylines = {}
     for i, polyline in enumerate(lines):
@@ -421,18 +346,6 @@ def GetClusters(lines:list[list[int]]) -> list[list[int]]:
 
 #lines, points, clusters
 def VectorizeSkeleton(skeleton:np.ndarray) -> tuple[list, list, list]:
-    """
-    A function that takes a skeletonized binary image and vectorizes it so it can be displayed on pixmaps in the rest of the program.
-    Clusters of lines are detected, as well as points and polylines.
-
-    Args:
-        skeleton (np.ndarray): A binary integer array that represents a skeletonized image.
-
-    Returns:
-        tuple[list, list, list]: The lists of lines (each represented as a list of point indices), points (each represented as a tuple of XY coordinates in the range 0-1),
-        and conncted line clusters (each represented as a list of indices into the list of lines).
-    """
-
     skeleton = np.asarray(skeleton, dtype=np.int64)
     
     #find initial lines
@@ -444,7 +357,7 @@ def VectorizeSkeleton(skeleton:np.ndarray) -> tuple[list, list, list]:
 
     maxErrorDist = 0.001
     #simplify lines
-    lines = SimplifyLines(lines, points, maxErrorDist)
+    lines, points = SimplifyLines(lines, points, maxErrorDist)
 
     lines, points = RemoveUnusedPoints(points, lines)
 
@@ -458,18 +371,8 @@ def VectorizeSkeleton(skeleton:np.ndarray) -> tuple[list, list, list]:
 
     return lines, points, clusters
 
-def RemoveZeroLengthLines(points: list[tuple[float, float]], lines: list[list[int]], minLength:float=0.1) -> list[list[int]]:
-    """
-    Removes any lines below a certain length.
-
-    Args:
-        points (list[tuple[int, int]]): A list of points, each represented as a tuple of XY coordinates.
-        polylines (list[list[int]]): A list of lines, each represented as a list of indices into points.
-        minLength (float): The minimum length required to keep any line.
-
-    Returns:
-        list[list[int]]: The reduced list of lines.
-    """
+def RemoveZeroLengthLines(points, lines) -> list:
+    minLength = 0.01
 
     lineIndex = 0
 
@@ -484,7 +387,7 @@ def RemoveZeroLengthLines(points: list[tuple[float, float]], lines: list[list[in
             point1 = points[currentLine[i]]
             point2 = points[currentLine[i + 1]]
 
-            segmentLength = TupleDistance(point1, point2)
+            segmentLength = math.sqrt(pow(point2[0] - point1[0], 2) + pow(point2[1] - point1[1], 2))
 
             totalLength += segmentLength
 
@@ -495,22 +398,40 @@ def RemoveZeroLengthLines(points: list[tuple[float, float]], lines: list[list[in
 
     return lines
 
-def RemoveDuplicatedPoints(polyline:list[int]) -> list[int]:
-    """
-    Removes any points that are duplicated in a line.
-
-    Args:
-        polyline (list[int]): The input polyline, represented as a list of point indices.
-
-    Returns:
-        list[int]: The reduced version of the polyline.
-    """
-
-    if not polyline:
+def RemoveDuplicatedPoints(lst):
+    if not lst:
         return []
     
-    result = [polyline[0]]
-    for item in polyline[1:]:
+    result = [lst[0]]  # Start with the first element
+    for item in lst[1:]:
         if item != result[-1]:
             result.append(item)
     return result
+
+def PlotPointsAndLines(points, lines):
+    """
+    Plots a set of points and lines using matplotlib, flipped vertically with no legend.
+
+    Parameters:
+    - points: List of tuples, each representing (x, y) coordinates.
+    - lines: List of lists, each containing indices of points that form a line.
+    """
+    # Unzip points into x and y coordinates
+    x_coords, y_coords = zip(*points)
+    
+    # Plot all points
+    plt.scatter(x_coords, y_coords, color='blue')
+
+    # Plot each line
+    for line in lines:
+        line_points = [points[i] for i in line]
+        line_x, line_y = zip(*line_points)
+        plt.plot(line_x, line_y, marker='o')
+
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Points and Lines (Flipped Vertically)')
+    plt.gca().set_aspect('equal', adjustable='box')
+    #plt.gca().invert_yaxis()  # Flip vertically
+    plt.grid(False)
+    plt.show()
