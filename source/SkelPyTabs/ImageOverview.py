@@ -399,7 +399,7 @@ class ImageOverview(QWidget):
 		font.setPointSize(25)
 		self.leftButton.setFont(font)
 		scrollButtonLayout.addWidget(self.leftButton)
-		self.leftButton.clicked.connect(partial(self.ChangeIndex, -1))
+		self.leftButton.clicked.connect(partial(self.AdvanceIndex, -1))
 
 		self.leftButton.setEnabled(False)
 
@@ -408,7 +408,7 @@ class ImageOverview(QWidget):
 		font.setPointSize(25)
 		self.rightButton.setFont(font)
 		scrollButtonLayout.addWidget(self.rightButton)
-		self.rightButton.clicked.connect(partial(self.ChangeIndex, 1))
+		self.rightButton.clicked.connect(partial(self.AdvanceIndex, 1))
 
 		self.skeletonDisplayRegion.AddSkeletonDisplays()
 		self.skeletonDisplayRegion.GoIntoSkeletonView.connect(self.GoIntoSkeletonView)
@@ -490,7 +490,7 @@ class ImageOverview(QWidget):
 
 		self.currentSample = value
 
-		self.LoadImageIntoUI(0)
+		self.SetIndex(0)
 
 	def GoIntoSkeletonView(self, currSkeletonKey:str) -> None:
 		if not self.currentImageHasData:
@@ -575,11 +575,8 @@ class ImageOverview(QWidget):
 	def SetParameterValues(self, values:dict) -> None:
 		self.skeletonDisplayRegion.SetParameterValues(values)
 
-	def ChangeIndex(self, direction:int) -> None:
-		if self.currentIndex + direction < 0 or self.currentIndex + direction >= len(self.currentFileList):
-			return
-		
-		self.LoadImageIntoUI(self.currentIndex + direction)
+	def SetIndex(self, newIndex:int) -> None:
+		self.LoadImageIntoUI(newIndex)
 
 		if self.currentIndex == 0:
 			self.leftButton.setEnabled(False)
@@ -590,6 +587,14 @@ class ImageOverview(QWidget):
 			self.rightButton.setEnabled(False)
 		elif not self.rightButton.isEnabled():
 			self.rightButton.setEnabled(True)
+
+	def AdvanceIndex(self, direction:int) -> None:
+		if self.currentIndex + direction < 0 or self.currentIndex + direction >= len(self.currentFileList):
+			return
+		
+		newIndex = self.currentIndex + direction
+
+		self.SetIndex(newIndex)
 
 	def SelectDirectoryAndSetLineEdit(self, lineEdit:QLineEdit) -> None:
 		directory = QFileDialog.getExistingDirectory(self, "Select Directory")

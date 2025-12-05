@@ -44,7 +44,7 @@ class MainApplication(QWidget):
         screen_geometry = QApplication.primaryScreen().availableGeometry()
         screen_size = screen_geometry.size()
 
-        self.setWindowTitle("HyPhy")
+        self.setWindowTitle("SkelPy")
 
         self.setFixedSize(screen_size.width(), screen_size.height() * 0.9)
 
