@@ -1,9 +1,7 @@
 *.pdf
 *.docx
-*.tif
 *.png
 Skeletons/*
-Images/*
 Documents/*
 initializationSettings.json
 *.pyc
@@ -11,5 +9,4 @@ __pycache__/*
 ParameterValues.json
 dist*
 build*
-*.tif
 *.spec
