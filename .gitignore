@@ -1,6 +1,8 @@
 *.pdf
 *.docx
 *.png
+*.tif
+Images/*
 Skeletons/*
 Documents/*
 initializationSettings.json
