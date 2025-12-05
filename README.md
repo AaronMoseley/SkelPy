@@ -24,7 +24,7 @@ The project was created with Python and PyQt.
 
 ## Getting Started
 
-If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a Mac or Linux system, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run SkelPy as it doesn't require you to download the code or manually install any packages. If you would still like to download the code or run SkelPy more manually, continue with the instructions below. Otherwise, you can skip them.
+If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a Mac or Linux system, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run SkelPy as it doesn't require you to download the code or manually install any packages. If you would like to download the code or run SkelPy more manually, continue with the instructions below. Otherwise, you can skip them.
  
 ### Prerequisites
 
@@ -65,7 +65,9 @@ You can select which sample to view using the dropdown box and the timestamp wit
 Below the image selection, you can see information about the skeletons and their pipelines. Each pipeline has its own section with its own steps, parameters, and results.
 Click on a skeletonized image to enter the skeleton viewer. Click "Preview Steps" to view the effect of each step on the image in the preview viewer. Click "Toggle Overlay On Original" to view the skeleton overlayed onto the input image. Click "Compare to External Skeleton" to enter the comparison viewer.
 
-In this section, you can edit the names of any skeletonization pipeline with the header textbox. You can also delete a pipeline with the X button beside the name. To replace a step with another, use the dropdown with the step name. Some steps have a series of parameters that you can modify with sliders. Clicking "Add Step" will add a new step to that pipeline. Each pipeline ends with the skeletonization step by default and that cannot be changed in the GUI. All changes to pipelines, steps, and parameters are saved and will persist if you close the application.
+In this section, you can edit the names of any skeletonization pipeline with the header textbox. You can also delete a pipeline with the X button beside the name. To replace a step with another, use the dropdown with the step name. Some steps have a series of parameters that you can modify with sliders. This is necessary as not all parameter values will work with all images. If you are having trouble getting a pipeline to generate usable output for an image, try modifying the values in the sliders and click "Preview Steps" for a more detailed view.
+
+Clicking "Add Step" will add a new step to that pipeline. Each pipeline ends with the skeletonization step by default and that cannot be changed in the GUI. All changes to pipelines, steps, and parameters are saved and will persist if you close the application.
 
 If you would like to create a skeletonization pipeline from scratch, click "Add Skeletonization Pipeline" at the bottom and it will create a new one for you. This pipeline will only include the skeletonization step, so you would need to provide everything else.
 
