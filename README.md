@@ -24,7 +24,7 @@ The project was created with Python and PyQt.
 
 ## Getting Started
 
-If you are using Windows, or have [Wine](https://www.winehq.org/) installed on a Mac or Linux system, navigate to the "Releases" section of the repo on the right and download the most recent release. You can then open the executable to run the program. This is the easiest way to run SkelPy as it doesn't require you to download the code or manually install any packages. If you would like to download the code or run SkelPy more manually, continue with the instructions below. Otherwise, you can skip them.
+If you use Windows or Mac, navigate to the release section of this repo and download your corresponding version. This is the easiest way to run SkelPy as it doesn't require you to download the code or manually install any packages. If you would like to download the code or run SkelPy more manually, continue with the instructions below. Otherwise, you can skip them.
  
 ### Prerequisites
 
@@ -33,7 +33,7 @@ You must already have an environment set up to use this project. This is a requi
 
 1. Clone the repo
    ```sh
-   https://github.com/AaronMoseley/SkelPy.git
+   git clone https://github.com/AaronMoseley/SkelPy.git
    ```
 3. Install pip Packages (execute command inside Github repo directory)
    ```sh
