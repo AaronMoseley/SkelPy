@@ -54,6 +54,10 @@ Alternatively, if you need to debug the program, you can open this repo as a fol
 
 ## How to Use
 
+Below is shown a basic flowchart for using SkelPy with the two provided skeletonization pipelines as an example. The user provides SkelPy with a series of images (anything that can be opened by PIL in Python), uses a series of parameters and the skeletonization pipelines to detect features, then calculates metadata and a vectorized version of the skeletons and stores them in .csv and .json files.
+
+![SkelPy Use Flowchart](./SkelPyExample.png)
+
 ### Main Window
 
 In the main window, you can look at different images, edit pipelines, edit parameters, and navigate to other windows. Upon starting up the program, use the "Input Directory" and "Output Directory" textboxes to set the directory where your original images are located and where you would like the output images and data to be placed.
