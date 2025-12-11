@@ -16,6 +16,8 @@
 
 ## About The Project
 
+This is a free, open-source, modular tool meant to help biology researchers create skeletons of structures, like fungi, from images. This is accomplished through modular pipelines with individual steps that transform the image in some way. After a pipeline is complete, the skeleton is saved as an image, then vectorized into a list of lines and points. Metadata is also calculated about the skeleton to give you more information about it. The completed skeletons and their metadata can be viewed and any pipelines modified through an intuitive GUI interface. As discussed later in the documentation, this tool should also be easy to modify and add content to if you have experience with Python.
+
 This project was created for Dr. Jordan Dowell's biology lab at LSU.
 
 By default, two example skeletonization pipelines with steps and parameters are provided. These worked with example data but are intended as a starting point for users to make their own. It should be relatively easy to modify these pipelines, create your own, and add your own custom steps with Python. You can also add your own metadata and comparison functions that will appear in the program. Please refer to the demo video, the "Adding Your Own Content" section, or the documentation in source/UserContent for more information on how to do this.
